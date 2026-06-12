@@ -1,236 +1,170 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { SiGithub, SiLinkedin } from "react-icons/si";
-import { HiChevronDown } from "react-icons/hi";
+import { HiArrowDown } from "react-icons/hi";
+import { profile, roles, socials, tickerItems } from "../data/content";
+
+const socialIcons = {
+  github: SiGithub,
+  linkedin: SiLinkedin,
+};
+
+function RoleRotator() {
+  const prefersReducedMotion = useReducedMotion();
+  const [roleIndex, setRoleIndex] = useState(0);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const timer = setInterval(() => {
+      setRoleIndex((i) => (i + 1) % roles.length);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [prefersReducedMotion]);
+
+  return (
+    <span className="relative inline-flex overflow-hidden align-bottom text-accent">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={roleIndex}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="whitespace-nowrap"
+        >
+          {roles[roleIndex]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
 
 function HeroSection() {
-  const [scrollY, setScrollY] = useState(0);
-  
-  // Texte pour l'effet de machine à écrire
-  const [text, setText] = useState("");
-  const [index, setIndex] = useState(0);
-  const roles = ["Software Engineer", "Go & Python Developer", "AI Enthusiast"];
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [typingSpeed, setTypingSpeed] = useState(200);
-
-  // Effet de parallaxe
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Effet de machine à écrire
-  useEffect(() => {
-    const currentRole = roles[roleIndex];
-    
-    const timer = setTimeout(() => {
-      if (!isDeleting) {
-        setText(currentRole.substring(0, index + 1));
-        setIndex(index + 1);
-        
-        if (index === currentRole.length) {
-          setIsDeleting(true);
-          setTypingSpeed(100); // Pause avant de commencer à effacer
-        }
-      } else {
-        setText(currentRole.substring(0, index - 1));
-        setIndex(index - 1);
-        
-        if (index === 1) {
-          setIsDeleting(false);
-          setRoleIndex((roleIndex + 1) % roles.length);
-          setTypingSpeed(150);
-        }
-      }
-    }, typingSpeed);
-    
-    return () => clearTimeout(timer);
-  }, [index, isDeleting, roleIndex, roles, typingSpeed]);
-
-  // Les variants d'animation pour les boutons sociaux
-  const socialVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: 1.5 + i * 0.2,
-        duration: 0.5
-      }
-    })
-  };
-
   return (
     <section
       id="hero"
-      className="min-h-screen relative flex items-center justify-center bg-fixed bg-center bg-cover overflow-hidden"
-      style={{ 
-        backgroundImage: `url('/images/hero-bg.svg')`
-      }}
+      className="relative flex min-h-svh flex-col overflow-hidden bg-grid"
     >
-      {/* Overlay avec dégradé */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80"
-        style={{ 
-          transform: `translateY(${scrollY * 0.1}px)` 
-        }}
-      ></div>
-      
-      {/* Particules/Motifs décoratifs */}
-      <div className="absolute inset-0 opacity-30">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-3 h-3 rounded-full bg-blue-500"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, Math.random() * 40 - 20],
-              opacity: [0.3, 0.6, 0.3],
-              scale: [1, Math.random() * 0.5 + 0.8, 1]
-            }}
-            transition={{
-              duration: Math.random() * 5 + 5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </div>
-      
-      <div className="container mx-auto px-4">
-        <div className="relative z-10 text-center text-white max-w-4xl mx-auto">
-          {/* Badge/tag en haut */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="inline-block mx-auto mb-6 bg-blue-600/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium"
+      <div className="pointer-events-none absolute inset-0 bg-glow" aria-hidden="true" />
+      {/* Fade the grid out toward the bottom edge */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-ink"
+        aria-hidden="true"
+      />
+
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 pt-24 pb-16 sm:px-6">
+        {/* Status pill */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8 inline-flex w-fit items-center gap-2.5 border border-line bg-panel/70 px-4 py-2 font-mono text-xs tracking-wide text-slate-300 backdrop-blur-sm"
+        >
+          <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" aria-hidden="true" />
+          {profile.title} @ {profile.company} — {profile.companyLocation}
+        </motion.p>
+
+        {/* Name */}
+        <motion.h1
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1 }}
+          className="text-[14vw] leading-[0.95] font-bold tracking-tighter text-white sm:text-7xl lg:text-8xl"
+        >
+          {profile.firstName}
+          <br />
+          {profile.lastName}
+          <span className="text-accent">.</span>
+        </motion.h1>
+
+        {/* Role line */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.25 }}
+          className="mt-8 text-xl font-medium text-slate-300 sm:text-2xl"
+        >
+          Building <RoleRotator />
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-4 max-w-xl text-base text-faint sm:text-lg"
+        >
+          {profile.heroLine}
+        </motion.p>
+
+        {/* CTAs + socials */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.55 }}
+          className="mt-10 flex flex-wrap items-center gap-4"
+        >
+          <a
+            href="#projects"
+            className="flex min-h-12 items-center gap-2 bg-accent px-6 font-mono text-sm font-semibold uppercase tracking-widest text-ink transition-colors hover:bg-white"
           >
-            Hello, welcome to my portfolio
-          </motion.div>
-          
-          {/* Nom avec animation raffinée */}
-          <motion.h1
-            className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-300"
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
+            Selected work
+            <HiArrowDown aria-hidden="true" />
+          </a>
+          <a
+            href={profile.blogUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex min-h-12 items-center border border-line px-6 font-mono text-sm uppercase tracking-widest text-slate-200 transition-colors hover:border-accent hover:text-accent"
           >
-            Camil Benameur
-          </motion.h1>
-          
-          {/* Sous-titre animé (machine à écrire) */}
-          <motion.div
-            className="h-12 flex justify-center items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 1 }}
-          >
-            <h2 className="text-2xl md:text-4xl font-medium">
-              I am a <span className="text-blue-400">{text}</span>
-              <span className="animate-pulse">|</span>
-            </h2>
-          </motion.div>
-          
-          {/* Description courte */}
-          <motion.p
-            className="mt-6 text-lg text-gray-300 max-w-xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 1 }}
-          >
-            Software Engineer at Schneider Electric (Carros). I lead end-to-end delivery of industrial
-            orchestrators, specializing in Go, Python, and high-performance system architectures.
-          </motion.p>
-          
-          {/* Boutons d'action */}
-          <motion.div 
-            className="mt-8 flex flex-wrap justify-center gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4, duration: 0.7 }}
-          >
-            <motion.a
-              href="#projects"
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 transition-all rounded-full font-medium flex items-center"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              SoftdPAC Installer
-            </motion.a>
-            <motion.a
-              href="https://blog.camilbenameur.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-transparent border-2 border-white hover:bg-white/10 transition-all rounded-full font-medium"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Read the Blog
-            </motion.a>
-          </motion.div>
-          
-          {/* Liens sociaux */}
-          <div className="mt-10 flex justify-center gap-4">
-            <motion.a
-              href="https://github.com/camilbenameur"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all"
-              variants={socialVariants}
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              whileHover={{ scale: 1.1 }}
-              aria-label="GitHub Profile"
-            >
-              <SiGithub size={24} />
-            </motion.a>
-            <motion.a
-              href="https://www.linkedin.com/in/camil-benameur-14a762194/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all"
-              variants={socialVariants}
-              initial="hidden"
-              animate="visible"
-              custom={1}
-              whileHover={{ scale: 1.1 }}
-              aria-label="LinkedIn Profile"
-            >
-              <SiLinkedin size={24} />
-            </motion.a>
+            Read the blog ↗
+          </a>
+          <span className="hidden h-6 w-px bg-line sm:block" aria-hidden="true" />
+          <div className="flex gap-2">
+            {socials.map((social) => {
+              const Icon = socialIcons[social.id];
+              return (
+                <a
+                  key={social.id}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${social.label} profile`}
+                  className="flex h-12 w-12 items-center justify-center border border-line text-slate-300 transition-colors hover:border-accent hover:text-accent"
+                >
+                  <Icon size={20} />
+                </a>
+              );
+            })}
           </div>
-        </div>
+        </motion.div>
       </div>
-      
-      {/* Bouton de défilement vers le bas */}
-      <motion.div 
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+
+      {/* Tech ticker */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
+        transition={{ duration: 1, delay: 0.8 }}
+        className="relative border-t border-line"
       >
-        <motion.a
-          href="#about"
-          className="flex flex-col items-center text-white/80 hover:text-white transition-colors"
-          animate={{
-            y: [0, 10, 0],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <span className="text-sm mb-2">Scroll Down</span>
-          <HiChevronDown size={24} />
-        </motion.a>
+        <div className="relative overflow-hidden py-4" aria-hidden="true">
+          <div className="flex w-max animate-marquee">
+            {[0, 1].map((copy) => (
+              <div key={copy} className="flex shrink-0">
+                {tickerItems.map((item) => (
+                  <span
+                    key={`${copy}-${item}`}
+                    className="mx-6 flex items-center gap-6 font-mono text-xs uppercase tracking-[0.25em] text-faint"
+                  >
+                    {item}
+                    <span className="text-accent/50">/</span>
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-ink to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-ink to-transparent" />
+        </div>
       </motion.div>
     </section>
   );

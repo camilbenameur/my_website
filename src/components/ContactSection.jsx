@@ -2,6 +2,18 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { SiGithub, SiLinkedin } from "react-icons/si";
 import { MdEmail, MdLocationOn } from "react-icons/md";
+import { profile, socials } from "../data/content";
+import SectionHeading from "./SectionHeading";
+
+const socialIcons = {
+  github: SiGithub,
+  linkedin: SiLinkedin,
+};
+
+const inputClasses = (hasError) =>
+  `w-full border bg-ink p-3 text-slate-200 placeholder:text-faint/60 transition-colors focus:outline-none focus:border-accent ${
+    hasError ? "border-red-500/70" : "border-line"
+  }`;
 
 function ContactSection() {
   const [formState, setFormState] = useState({
@@ -47,7 +59,7 @@ function ContactSection() {
     else if (!/\S+@\S+\.\S+/.test(formState.email))
       tempErrors.email = "Email is invalid";
     if (!formState.message) tempErrors.message = "Message is required";
-    
+
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -77,7 +89,7 @@ function ContactSection() {
 
     if (validateForm()) {
       setIsSubmitting(true);
-      
+
       try {
         if (!formSubmitUrl) {
           throw new Error("FormSubmit URL is not configured");
@@ -91,15 +103,14 @@ function ContactSection() {
           setIsSubmitting(false);
           return;
         }
-        
-        // Send the form using a form submission service
+
         const response = await fetch(formSubmitUrl, {
-          method: 'POST',
-          body: formData
+          method: "POST",
+          body: formData,
         });
-        
-        if (!response.ok) throw new Error('Form submission failed');
-        
+
+        if (!response.ok) throw new Error("Form submission failed");
+
         setSubmitStatus("success");
         setFormState({ name: "", email: "", message: "" });
         storeSubmitTimestamp(now);
@@ -113,244 +124,234 @@ function ContactSection() {
     }
   };
 
-  const fadeInUp = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
   return (
-    <section
-      id="contact"
-      className="min-h-screen flex items-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 py-16"
-    >
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
-          variants={{
-            hidden: { opacity: 0, y: -20 },
-            visible: { opacity: 1, y: 0 }
-          }}
-          className="mb-16 text-center"
-        >
-          <h2 className="text-4xl font-bold mb-2">Contact Me</h2>
-          <div className="mx-auto w-24 h-1 bg-blue-600 mb-6 rounded-full"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-lg mx-auto">
-            Feel free to reach out for collaborations or just a friendly hello
-          </p>
-        </motion.div>
+    <section id="contact" className="border-t border-line py-24 sm:py-32">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeading
+          num="04"
+          label="Contact"
+          title="Open a channel."
+          intro="Collaboration, interesting problems, or just a friendly hello — the inbox is open."
+        />
 
-        <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-          {/* Contact Information */}
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* Channel info */}
           <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg"
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="space-y-8 lg:col-span-5"
           >
-            <motion.h3 
-              variants={fadeInUp}
-              className="text-2xl font-semibold mb-6"
-            >
-              Let's Connect
-            </motion.h3>
-            
-            <motion.div variants={fadeInUp} className="mb-8">
-              <div className="flex items-center mb-4">
-                <MdEmail className="text-blue-600 mr-3" size={24} />
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400">Email</h4>
-                  {contactEmail ? (
-                    <a href={`mailto:${contactEmail}`} className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                      {contactEmail}
+            <div className="flex items-start gap-4">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-line text-accent">
+                <MdEmail size={20} />
+              </span>
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-faint">
+                  Email
+                </p>
+                {contactEmail ? (
+                  <a
+                    href={`mailto:${contactEmail}`}
+                    className="text-slate-200 transition-colors hover:text-accent"
+                  >
+                    {contactEmail}
+                  </a>
+                ) : (
+                  <span className="text-slate-200">Use the form — it lands in my inbox</span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-line text-accent">
+                <MdLocationOn size={20} />
+              </span>
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-faint">
+                  Location
+                </p>
+                <p className="text-slate-200">
+                  {profile.location}{" "}
+                  <span className="font-mono text-xs text-faint">
+                    ({profile.coordinates})
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-4 font-mono text-xs uppercase tracking-widest text-faint">
+                Elsewhere
+              </p>
+              <div className="flex gap-3">
+                {socials.map((social) => {
+                  const Icon = socialIcons[social.id];
+                  return (
+                    <a
+                      key={social.id}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                      className="flex h-12 w-12 items-center justify-center border border-line text-slate-300 transition-colors hover:border-accent hover:text-accent"
+                    >
+                      <Icon size={20} />
                     </a>
-                  ) : (
-                    <span className="text-gray-600 dark:text-gray-300">Use the form below</span>
-                  )}
-                </div>
+                  );
+                })}
               </div>
-              
-              <div className="flex items-center">
-                <MdLocationOn className="text-blue-600 mr-3" size={24} />
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400">Location</h4>
-                  <p className="text-gray-800 dark:text-gray-200">Nice, France</p>
-                </div>
-              </div>
-            </motion.div>
-            
-            <motion.div variants={fadeInUp}>
-              <h4 className="text-lg font-semibold mb-4">Find me on</h4>
-              <div className="flex space-x-4">
-                <a
-                  href="https://github.com/camilbenameur"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GitHub"
-                  className="bg-gray-200 dark:bg-gray-700 p-3 rounded-full hover:bg-blue-100 dark:hover:bg-gray-600 transition"
-                >
-                  <SiGithub size={22} className="text-gray-800 dark:text-gray-200" />
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/camil-benameur-14a762194/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="LinkedIn"
-                  className="bg-gray-200 dark:bg-gray-700 p-3 rounded-full hover:bg-blue-100 dark:hover:bg-gray-600 transition"
-                >
-                  <SiLinkedin size={22} className="text-gray-800 dark:text-gray-200" />
-                </a>
-              </div>
-            </motion.div>
+            </div>
           </motion.div>
 
-          {/* Contact Form */}
+          {/* Terminal form */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true, amount: 0.3 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+            className="lg:col-span-7"
           >
-            <form 
-              onSubmit={handleSubmit}
-              className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg"
-            >
-              <input type="text" name="_honey" className="hidden" tabIndex="-1" autoComplete="off" />
-              <input type="hidden" name="_captcha" value="true" />
-              <div className="mb-5">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Name
-                </label>
+            <div className="corner-ticks border border-line bg-panel">
+              {/* Terminal header */}
+              <div className="flex items-center justify-between border-b border-line px-5 py-3">
+                <div className="flex gap-1.5" aria-hidden="true">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-signal/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-accent/70" />
+                </div>
+                <span className="font-mono text-xs text-faint">message — send</span>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-5 sm:p-8" noValidate>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  value={formState.name}
-                  onChange={handleChange}
-                  className={`w-full p-3 bg-gray-50 dark:bg-gray-700 border ${
-                    errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-                  placeholder="Your Name"
-                  disabled={isSubmitting}
+                  name="_honey"
+                  className="hidden"
+                  tabIndex="-1"
+                  autoComplete="off"
                 />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                )}
-              </div>
+                <input type="hidden" name="_captcha" value="true" />
 
-              <div className="mb-5">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formState.email}
-                  onChange={handleChange}
-                  className={`w-full p-3 bg-gray-50 dark:bg-gray-700 border ${
-                    errors.email ? "border-red-500" : "border-gray-300 dark:border-gray-600"
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-                  placeholder="Your Email"
+                <div className="mb-5">
+                  <label
+                    htmlFor="name"
+                    className="mb-2 block font-mono text-xs uppercase tracking-widest text-faint"
+                  >
+                    <span className="text-accent">$</span> name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formState.name}
+                    onChange={handleChange}
+                    className={inputClasses(errors.name)}
+                    placeholder="Your name"
+                    disabled={isSubmitting}
+                  />
+                  {errors.name && (
+                    <p className="mt-1 font-mono text-xs text-red-400">{errors.name}</p>
+                  )}
+                </div>
+
+                <div className="mb-5">
+                  <label
+                    htmlFor="email"
+                    className="mb-2 block font-mono text-xs uppercase tracking-widest text-faint"
+                  >
+                    <span className="text-accent">$</span> email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formState.email}
+                    onChange={handleChange}
+                    className={inputClasses(errors.email)}
+                    placeholder="you@example.com"
+                    disabled={isSubmitting}
+                  />
+                  {errors.email && (
+                    <p className="mt-1 font-mono text-xs text-red-400">{errors.email}</p>
+                  )}
+                </div>
+
+                <div className="mb-6">
+                  <label
+                    htmlFor="message"
+                    className="mb-2 block font-mono text-xs uppercase tracking-widest text-faint"
+                  >
+                    <span className="text-accent">$</span> message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows="5"
+                    value={formState.message}
+                    onChange={handleChange}
+                    className={inputClasses(errors.message)}
+                    placeholder="What are we building?"
+                    disabled={isSubmitting}
+                  ></textarea>
+                  {errors.message && (
+                    <p className="mt-1 font-mono text-xs text-red-400">
+                      {errors.message}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
                   disabled={isSubmitting}
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                  className={`flex min-h-12 w-full items-center justify-center font-mono text-sm font-semibold uppercase tracking-widest transition-colors ${
+                    isSubmitting
+                      ? "cursor-not-allowed bg-panel-2 text-faint"
+                      : "bg-accent text-ink hover:bg-white"
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-faint border-t-transparent" />
+                      Transmitting…
+                    </span>
+                  ) : (
+                    "Send message →"
+                  )}
+                </button>
+
+                {submitStatus === "success" && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 border border-accent/40 bg-accent-dim p-3 text-center font-mono text-xs text-accent"
+                  >
+                    [OK] Message sent. I&apos;ll get back to you soon.
+                  </motion.p>
                 )}
-              </div>
 
-              <div className="mb-5">
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="4"
-                  value={formState.message}
-                  onChange={handleChange}
-                  className={`w-full p-3 bg-gray-50 dark:bg-gray-700 border ${
-                    errors.message ? "border-red-500" : "border-gray-300 dark:border-gray-600"
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-                  placeholder="Your Message"
-                  disabled={isSubmitting}
-                ></textarea>
-                {errors.message && (
-                  <p className="mt-1 text-sm text-red-500">{errors.message}</p>
+                {submitStatus === "error" && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 border border-red-500/40 bg-red-500/10 p-3 text-center font-mono text-xs text-red-400"
+                  >
+                    [ERR] Failed to send. Please try again.
+                  </motion.p>
                 )}
-              </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full py-3 px-5 font-medium rounded-lg transition-all transform hover:scale-[1.02] ${
-                  isSubmitting 
-                    ? "bg-gray-400 text-white cursor-not-allowed" 
-                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
-                }`}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></div>
-                    Sending...
-                  </div>
-                ) : (
-                  "Send Message"
+                {rateLimitError && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 border border-signal/40 bg-signal/10 p-3 text-center font-mono text-xs text-signal"
+                  >
+                    [RATE] {rateLimitError}
+                  </motion.p>
                 )}
-              </button>
-
-              {submitStatus === "success" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 p-3 bg-green-100 text-green-800 rounded-lg text-center"
-                >
-                  Message sent successfully! I'll get back to you soon.
-                </motion.div>
-              )}
-
-              {submitStatus === "error" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 p-3 bg-red-100 text-red-800 rounded-lg text-center"
-                >
-                  Failed to send message. Please try again.
-                </motion.div>
-              )}
-
-              {rateLimitError && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 p-3 bg-amber-100 text-amber-800 rounded-lg text-center"
-                >
-                  {rateLimitError}
-                </motion.div>
-              )}
-            </form>
+              </form>
+            </div>
           </motion.div>
         </div>
       </div>
