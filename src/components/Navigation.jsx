@@ -1,210 +1,146 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlineMenuAlt3, HiX } from "react-icons/hi";
-import { BsSun, BsMoon } from "react-icons/bs";
+import { profile, sections } from "../data/content";
 
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [scrolled, setScrolled] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 20);
 
-      const sections = ["hero", "about", "skills", "projects", "contact"];
-      const scrollPosition = window.scrollY + 100;
-      
+      const scrollPosition = window.scrollY + 120;
+      let current = "hero";
       for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const offsetTop = element.offsetTop;
-          const height = element.offsetHeight;
-          
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + height) {
-            setActiveSection(section);
-            break;
-          }
+        const element = document.getElementById(section.id);
+        if (element && scrollPosition >= element.offsetTop) {
+          current = section.id;
         }
       }
+      setActiveSection(current);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
-  useEffect(() => {
-    if (darkMode) {
-      localStorage.theme = "dark";
-      document.documentElement.classList.add("dark");      
-    } else {
-      localStorage.theme = "light";
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
-
-  // Liens de navigation
-  const navLinks = [
-    { id: "hero", label: "Home" },
-    { id: "about", label: "About" },
-    { id: "skills", label: "Skills" },
-    { id: "projects", label: "Projects" },
-    { id: "blog", label: "Blog", href: "https://blog.camilbenameur.com", external: true },
-    { id: "contact", label: "Contact" }
-  ];
-
-  // Fermer le menu mobile lors du clic sur un lien
-  const handleLinkClick = () => {
-    setIsOpen(false);
-  };
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
+    <motion.header
+      initial={{ y: -80 }}
       animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? "bg-white dark:bg-gray-900 shadow-lg py-3" 
-          : "bg-transparent py-5"
+      transition={{ type: "spring", stiffness: 120, damping: 20 }}
+      className={`fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-300 ${
+        scrolled || isOpen
+          ? "border-line bg-ink/85 backdrop-blur-md"
+          : "border-transparent bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4 flex justify-between items-center">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <motion.a 
-          href="#hero" 
-          className={`text-xl md:text-2xl font-bold ${
-            scrolled ? "text-gray-900 dark:text-white" : "text-white"
-          } flex items-center gap-2`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <a
+          href="#hero"
+          className="group flex min-h-11 items-center gap-3 font-mono text-sm text-slate-200"
+          aria-label="Back to top"
         >
-          <motion.div 
-            className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold"
-            whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-            transition={{ duration: 0.5 }}
-          >
+          <span className="flex h-7 w-7 items-center justify-center border border-accent/60 text-xs font-bold text-accent transition-colors group-hover:bg-accent group-hover:text-ink">
             CB
-          </motion.div>
-          <span className={scrolled ? "" : "hidden md:inline"}>Camil Benameur</span>
-        </motion.a>
+          </span>
+          <span className="hidden tracking-wide sm:inline">
+            camil<span className="text-faint">@</span>benameur
+          </span>
+        </a>
 
-        {/* Navigation pour desktop */}
-        <div className="hidden md:flex items-center space-x-1">
-          {navLinks.map((link) => (
+        {/* Desktop nav */}
+        <div className="hidden items-center gap-1 md:flex">
+          {sections.map((section) => (
             <a
-              key={link.id}
-              href={link.external ? link.href : `#${link.id}`}
-              onClick={link.external ? undefined : handleLinkClick}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              className={`relative px-4 py-2 rounded-md transition-colors ${
-                scrolled 
-                  ? activeSection === link.id
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
-                  : activeSection === link.id
-                      ? "text-white bg-white/20"
-                      : "text-white/90 hover:bg-white/10"
+              key={section.id}
+              href={`#${section.id}`}
+              className={`relative flex min-h-11 items-center px-3 font-mono text-xs uppercase tracking-widest transition-colors ${
+                activeSection === section.id
+                  ? "text-accent"
+                  : "text-faint hover:text-slate-200"
               }`}
             >
-              {link.label}
-              {activeSection === link.id && !link.external && (
-                <motion.div
-                  layoutId="activeSection"
-                  className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 w-8 bg-blue-500 rounded-full"
+              <span className="mr-1.5 text-[10px] opacity-60">{section.num}</span>
+              {section.label}
+              {activeSection === section.id && (
+                <motion.span
+                  layoutId="nav-active"
+                  className="absolute inset-x-3 bottom-2 h-px bg-accent"
                 />
               )}
             </a>
           ))}
-
-          {/* Bouton thème clair/sombre */}
-          <motion.button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`ml-2 p-2 rounded-full ${
-              scrolled 
-                ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                : "bg-white/20 text-white"
-            }`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Toggle dark mode"
+          <a
+            href={profile.blogUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 flex min-h-11 items-center border border-line px-4 font-mono text-xs uppercase tracking-widest text-slate-200 transition-colors hover:border-accent hover:text-accent"
           >
-            {darkMode ? <BsSun size={20} /> : <BsMoon size={20} />}
-          </motion.button>
+            Blog ↗
+          </a>
         </div>
 
-        {/* Bouton menu mobile */}
-        <div className="md:hidden flex items-center">
-          <motion.button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`mr-4 p-2 rounded-full ${
-              scrolled 
-                ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                : "bg-white/20 text-white"
-            }`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Toggle dark mode"
-          >
-            {darkMode ? <BsSun size={20} /> : <BsMoon size={20} />}
-          </motion.button>
-          
-          <motion.button
-            onClick={() => setIsOpen(!isOpen)}
-            className={`p-2 rounded ${
-              scrolled 
-                ? "text-gray-900 dark:text-white" 
-                : "text-white"
-            }`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Menu"
-          >
-            {isOpen ? <HiX size={24} /> : <HiOutlineMenuAlt3 size={24} />}
-          </motion.button>
-        </div>
-      </div>
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex h-11 w-11 items-center justify-center text-slate-200 md:hidden"
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isOpen}
+        >
+          {isOpen ? <HiX size={24} /> : <HiOutlineMenuAlt3 size={24} />}
+        </button>
+      </nav>
 
-      {/* Menu mobile */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white dark:bg-gray-900 shadow-lg overflow-hidden"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="overflow-hidden border-t border-line bg-ink/95 backdrop-blur-md md:hidden"
           >
-            <div className="container mx-auto px-4 py-4 flex flex-col space-y-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.external ? link.href : `#${link.id}`}
-                  onClick={link.external ? undefined : handleLinkClick}
-                  target={link.external ? "_blank" : undefined}
-                  rel={link.external ? "noopener noreferrer" : undefined}
-                  className={`block py-3 px-4 rounded-lg ${
-                    activeSection === link.id && !link.external
-                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
+            <div className="flex flex-col px-4 py-4">
+              {sections.map((section, i) => (
+                <motion.a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  onClick={() => setIsOpen(false)}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 * i }}
+                  className={`flex min-h-12 items-center gap-3 border-b border-line/50 font-mono text-sm uppercase tracking-widest ${
+                    activeSection === section.id ? "text-accent" : "text-slate-300"
                   }`}
                 >
-                  {link.label}
-                  {link.external && (
-                    <span className="ml-1 text-xs text-gray-400">↗</span>
-                  )}
-                </a>
+                  <span className="text-xs text-faint">{section.num}</span>
+                  {section.label}
+                </motion.a>
               ))}
+              <motion.a
+                href={profile.blogUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * sections.length }}
+                className="flex min-h-12 items-center gap-3 font-mono text-sm uppercase tracking-widest text-slate-300"
+              >
+                <span className="text-xs text-faint">→</span>
+                Blog ↗
+              </motion.a>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </motion.header>
   );
 }
 
