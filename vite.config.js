@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    host: true, // bind to all interfaces (0.0.0.0 + ::) so VS Code / dev-container IPv4 port forwarding reaches it
+  },
 })

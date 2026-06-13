@@ -1,27 +1,32 @@
+import { lazy, Suspense } from "react";
+import { MotionConfig } from "framer-motion";
 import Navigation from "./components/Navigation";
 import HeroSection from "./components/HeroSection";
 import AboutSection from "./components/AboutSection";
-import SkillsSection from "./components/SkillsSection";
-import ProjectsSection from "./components/ProjectsSection";
-import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
-import ScrollToTop from "./components/ScrollToTop";
+
+// Below-the-fold sections are code-split so the hero paints first.
+const SkillsSection = lazy(() => import("./components/SkillsSection"));
+const ProjectsSection = lazy(() => import("./components/ProjectsSection"));
+const ContactSection = lazy(() => import("./components/ContactSection"));
 
 function App() {
-
   return (
-    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <Navigation />
-      <div className="pt-0">
-        <HeroSection />
-        <AboutSection />
-        <SkillsSection />
-        <ProjectsSection />
-        <ContactSection />
+    <MotionConfig reducedMotion="user">
+      <div className="bg-ink text-body">
+        <Navigation />
+        <main>
+          <HeroSection />
+          <AboutSection />
+          <Suspense fallback={<div className="min-h-screen" aria-hidden="true" />}>
+            <SkillsSection />
+            <ProjectsSection />
+            <ContactSection />
+          </Suspense>
+        </main>
+        <Footer />
       </div>
-      <Footer />
-      <ScrollToTop />
-    </div>
+    </MotionConfig>
   );
 }
 
