@@ -37,12 +37,6 @@ export const socials = [
   },
 ];
 
-export const stats = [
-  { value: "64k+", label: "LOC orchestrator owned end-to-end" },
-  { value: "316 MB/s", label: "zero-allocation LLM stream parsing" },
-  { value: "0→1", label: "MVP to global Schneider Electric release" },
-];
-
 export const experience = [
   {
     role: "Software Engineer",

@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import {
   profile,
-  stats,
   experience,
   education,
   focusTags,
@@ -61,18 +60,6 @@ function AboutSection() {
             <p className="text-lg leading-relaxed text-body sm:text-xl">
               {profile.summary}
             </p>
-
-            {/* Stats */}
-            <div className="mt-10 grid grid-cols-1 divide-y divide-line border border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              {stats.map((stat) => (
-                <div key={stat.value} className="px-6 py-5">
-                  <p className="font-mono text-3xl font-bold text-accent">
-                    {stat.value}
-                  </p>
-                  <p className="mt-1 text-sm text-faint">{stat.label}</p>
-                </div>
-              ))}
-            </div>
 
             {/* Experience / Education */}
             <div className="mt-12 grid gap-10 sm:grid-cols-2">
