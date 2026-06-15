@@ -61,7 +61,7 @@ function HeroSection() {
           className="mb-8 inline-flex w-fit items-center gap-2.5 border border-line bg-panel/70 px-4 py-2 font-mono text-xs tracking-wide text-slate-300 backdrop-blur-sm"
         >
           <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" aria-hidden="true" />
-          {profile.title} @ {profile.company} — {profile.companyLocation}
+          {profile.title}
         </motion.p>
 
         {/* Name */}
