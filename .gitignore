@@ -30,3 +30,8 @@ dist-ssr
 
 # Dev container
 .devcontainer/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
