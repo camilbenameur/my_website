@@ -76,7 +76,7 @@ function SkillsSection() {
           num="02"
           label="Capabilities"
           title="The toolbox, organized."
-          intro="Engineering Degree from Polytech Dijon, Master's in AI & Databases from Université de Bourgogne. Expert in high-performance Go and industrial Python."
+          intro="Engineering Degree from Polytech Dijon, Master's in AI & Databases from Université de Bourgogne. Focused on high-performance Go and industrial Python."
         />
 
         <div className="grid gap-px border border-line bg-line sm:grid-cols-2">
