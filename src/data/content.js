@@ -1,159 +1,163 @@
 // Single source of truth for everything the site says.
 // Components own how it looks; this file owns what it is.
+// The wording below is the approved site copy, byte for byte. Do not add a claim that is not already in it.
+// Camil's decision: the current role reads "Data & AI Engineer".
+// Page title, description and Open Graph tags live in index.html.
 
 export const profile = {
   name: "Camil Benameur",
-  firstName: "Camil",
-  lastName: "Benameur",
-  title: "Software Engineer",
-  company: "Schneider Electric",
-  companyLocation: "Carros",
-  location: "Nice, France",
-  coordinates: "43.70°N / 7.26°E",
-  blogUrl: "https://blog.camilbenameur.com",
-  summary:
-    "Software Engineer at Schneider Electric (Carros) delivering industrial orchestration platforms end-to-end. I own complex Go and Python systems — including a 64k+ LOC deployment pipeline with hexagonal architecture — and ship production-grade AI integrations for industrial workflows.",
-  heroLine:
-    "I lead end-to-end delivery of industrial orchestrators, specializing in Go, Python, and high-performance system architectures.",
+  line: "I'm a software engineer. I've built an offline installer for industrial PCs and a Go library for streamed LLM JSON.",
+  context: "Nice · graduated 2025 · currently at Call To Action",
+  links: [
+    { label: "GitHub", href: "https://github.com/camilbenameur" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/camil-benameur-14a762194/" },
+    { label: "Blog", href: "https://blog.camilbenameur.com/" },
+  ],
 };
 
-export const roles = [
-  "industrial orchestrators",
-  "high-performance Go systems",
-  "production AI integrations",
-  "deployment pipelines",
-];
+export const now = {
+  // Update the caption whenever the text changes.
+  caption: "October 2026",
+  text: "I joined Call To Action (Bonum Group) in Nice in August 2026, so it's early days. The role covers automating and optimizing data-operations processes (Python, SQL) on fully on-premise infrastructure with a local AI server, querying MS SQL, MariaDB and MongoDB, and full-stack development of internal tools and campaign scripts (JavaScript).",
+};
 
-export const socials = [
-  {
-    id: "github",
-    label: "GitHub",
-    url: "https://github.com/camilbenameur",
-  },
-  {
-    id: "linkedin",
-    label: "LinkedIn",
-    url: "https://www.linkedin.com/in/camil-benameur-14a762194/",
-  },
-];
-
-export const experience = [
-  {
-    role: "Software Engineer",
-    org: "Schneider Electric — Carros",
-    detail: "Industrial orchestration platforms, Go & Python systems.",
-  },
-  {
-    role: "Project Owner / Lead Developer",
-    org: "SoftdPAC Installer",
-    detail: "64k+ LOC deployment orchestrator built from scratch.",
-  },
-  {
-    role: "Copilot Champion & AI Enthusiast",
-    org: "Schneider Electric",
-    detail: "Leading monthly AI best-practice sessions.",
-  },
-];
-
-export const education = [
-  {
-    degree: "Engineering Degree, Software Development",
-    org: "Polytech Dijon",
-  },
-  {
-    degree: "Master's in AI & Databases",
-    org: "Université de Bourgogne",
-  },
-  {
-    degree: "Specialization",
-    org: "Transformer models & LLM integration",
-  },
-];
-
-export const focusTags = [
-  "Go",
-  "Hexagonal Architecture",
-  "Tauri",
-  "Industrial DevOps",
-  "LLM Agents",
-];
-
-export const tickerItems = [
-  "Go",
-  "Python",
-  "Hexagonal Architecture",
-  "Tauri",
-  "LLM Streaming",
-  "Debian Packaging",
-  "Docker",
-  "Linux Orchestration",
-  "MCP Servers",
-  "Computer Vision",
-];
-
+// Order is the order on the page and in the hero's `ls projects/` listing.
+// `id` is the anchor, the window title (`<id>/`) and the listing entry.
+// `span` is the card width in the 12-column grid (5, 6 or 7, from 1024px up).
+// A card with a `link` lifts on hover; the others do not.
 export const projects = [
   {
-    id: "softdpac-installer",
-    index: "001",
-    title: "SoftdPAC Installer",
-    category: "Schneider Electric",
-    featured: true,
-    description:
-      "Project Owner and Lead Developer of a 64k+ LOC deployment orchestrator built from scratch. Hexagonal Go backend, dynamic Debian packaging, and multi-stage build pipelines for a global Schneider Electric release.",
-    technologies: ["Go (Hexagonal)", "Tauri", "Debian Packaging", "Multi-stage Builds", "MVP Delivery"],
-    blog: "https://blog.camilbenameur.com/blog/from-backlog-to-offline-installer",
-    blogLabel: "Read the design story",
-  },
-  {
-    id: "softdpac-modernization",
-    index: "002",
-    title: "SoftdPAC Legacy Modernization",
-    category: "Schneider Electric",
-    featured: true,
-    description:
-      "Modernized and optimized the SoftdPAC runtime with refactoring, concurrency improvements in Go, and scalable container orchestration across Linux industrial hardware.",
-    technologies: ["Go", "Refactoring", "Concurrency", "Docker Fleet", "Linux Orchestration"],
-  },
-  {
     id: "go-llm-stream",
-    index: "003",
-    title: "go-llm-stream",
-    category: "Infrastructure & Go",
-    featured: true,
-    description:
-      "A high-performance O(n) Go library for incremental JSON parsing of LLM streams. Achieves 316+ MB/s with zero allocations and features automatic healing of malformed outputs.",
-    technologies: ["Go", "JSON Parsing", "State Machines", "LLM Streaming", "Benchmarking"],
-    github: "https://github.com/camilbenameur/go-llm-stream",
-    blog: "https://blog.camilbenameur.com/blog/on-streaming-optimization",
-    blogLabel: "Read the technical deep dive",
+    span: 7,
+    name: "go-llm-stream",
+    meta: ["Go", "MIT", "v1.3.0", "open source"],
+    text: "A Go library that parses JSON while an LLM is still streaming it, and repairs it when the output is cut off or wrapped in markdown fences. Fields can be read as soon as they complete, and the parser's state can be saved and restored. The scanner and the repair step are fuzz-tested.",
+    note: "It isn't faster than encoding/json's Decoder: in my June 2026 benchmark, the Decoder was 2 to 3 times faster per operation on chunked input. I'd use go-llm-stream for repair, early fields and resume.",
+    install: "go get github.com/camilbenameur/go-llm-stream",
+    link: { label: "Source", href: "https://github.com/camilbenameur/go-llm-stream" },
   },
   {
-    id: "portfolio",
-    index: "004",
-    title: "Portfolio Website",
-    category: "Side Project",
-    featured: false,
-    description:
-      "This site — built with React, Tailwind CSS, and Framer Motion on Vite.",
-    technologies: ["React", "TailwindCSS", "Framer Motion", "Vite"],
-    github: "https://github.com/camilbenameur/my_website",
+    id: "softdpac-remote-installer",
+    span: 5,
+    name: "SoftDPAC Remote Installer",
+    mine: "I designed and built the first version from scratch as an intern at Schneider Electric, then owned it as an engineer until March 2026.",
+    meta: ["Go", "React", "Tauri 2.0", "Cypress"],
+    text: "A Go and React app for installing industrial automation software on air-gapped industrial PCs over SSH, with IP scanning and key-based authentication under strict cybersecurity requirements. It showed install progress live (SSE) and had a reactive fallback and retry for apt lock conflicts and dependency resolution. Containerized Python scripts packaged the app's own Windows installer (NSIS).",
+    link: {
+      label: "Write-up",
+      href: "https://blog.camilbenameur.com/blog/from-backlog-to-offline-installer/",
+    },
   },
   {
-    id: "esp32-stereovision",
-    index: "005",
-    title: "ESP32 Stereovision System",
-    category: "Side Project",
-    featured: false,
-    description:
-      "AI-powered stereovision camera system using ESP32 microcontrollers to detect grass and measure distances.",
-    technologies: ["Python", "ESP32", "YOLOv8", "Computer Vision", "TensorFlow Lite"],
-    github: "https://github.com/camilbenameur/esp32-stereovision",
+    id: "ai-tools-at-schneider-electric",
+    span: 6,
+    name: "AI tools at Schneider Electric",
+    text: "I developed three AI tools as an engineer at Schneider Electric: a custom MCP (Model Context Protocol) server, a RAG agent over Confluence documentation and an AI code-review pipeline.",
+    note: "They're internal systems.",
+    also: "I was also a Copilot Champion (monthly AI best-practice sessions).",
+  },
+  {
+    id: "embedded-stereovision",
+    span: 6,
+    name: "Embedded stereovision",
+    meta: ["Lab internship", "Malaysia", "2024"],
+    text: "I worked on an embedded stereovision system for 3D capture and distance measurement: stereo camera calibration and depth extraction, plus real-time image processing and object detection (YOLOv8).",
   },
 ];
 
-export const sections = [
-  { id: "about", num: "01", label: "About" },
-  { id: "skills", num: "02", label: "Capabilities" },
-  { id: "projects", num: "03", label: "Work" },
-  { id: "contact", num: "04", label: "Contact" },
+// Hand-maintained: the CSP forbids fetching the blog feed from this page.
+// Titles must equal the `title` of the posts' frontmatter in personal_blog
+// (src/content/blog/*.md); `corrected` mirrors their `correction` block (2026-09-29).
+// Newest first, like the blog archive.
+//
+// HARD GATE, release order: `corrected`, the retitled streaming post and the "Write-up" link are only
+// true once the personal_blog build carrying the 2026-09-29 corrections is live. Both URLs answer 200
+// before that, so a link check cannot catch it. Deploy the blog first, then check on the live site that
+// /blog/on-streaming-optimization/ has the <title> "Streaming LLM JSON in Go: a Resumable Scanner and a
+// Healer" and that both posts show the correction note. Only then deploy this site.
+// `scripts/check-release-gate.mjs` makes that check: it runs before every CI build (`prebuild`) and
+// fails the build while the live posts do not match this list. `npm run check:release` runs it by hand.
+export const writing = [
+  {
+    date: { iso: "2026-02-05", label: "Feb 2026" },
+    title: "From Backlog to MVP: Building an Offline Industrial Installer in Go",
+    line: "The hardest part: installing a pinned Docker version offline, across Linux distributions. Also covers the hexagonal architecture in Go.",
+    corrected: { iso: "2026-09", label: "Sep 2026" },
+    href: "https://blog.camilbenameur.com/blog/from-backlog-to-offline-installer/",
+  },
+  {
+    date: { iso: "2026-01-27", label: "Jan 2026" },
+    title: "Streaming LLM JSON in Go: a Resumable Scanner and a Healer",
+    line: "How the scanner resumes mid-stream and the healer repairs truncated output.",
+    corrected: { iso: "2026-09", label: "Sep 2026" },
+    href: "https://blog.camilbenameur.com/blog/on-streaming-optimization/",
+  },
 ];
+
+export const writingIndex = { label: "All posts", href: "https://blog.camilbenameur.com/" };
+
+// One line per role, newest first. `to: null` means "present". Do not widen the dates.
+export const experience = [
+  {
+    role: "Data & AI Engineer",
+    org: "Call To Action (Bonum Group)",
+    from: { iso: "2026-08", label: "Aug 2026" },
+    to: null,
+  },
+  {
+    role: "Software Engineer",
+    org: "Schneider Electric",
+    from: { iso: "2025-10", label: "Oct 2025" },
+    to: { iso: "2026-03", label: "Mar 2026" },
+  },
+  {
+    role: "Software Engineer Intern",
+    org: "Schneider Electric",
+    from: { iso: "2025-04", label: "Apr" },
+    to: { iso: "2025-09", label: "Sep 2025" },
+  },
+  {
+    role: "Lab Intern, Computer Vision",
+    org: "Universiti Teknologi PETRONAS",
+    from: { iso: "2024-04", label: "Apr" },
+    to: { iso: "2024-06", label: "Jun 2024" },
+  },
+];
+
+// Seven groups, 24 chips. Flat chips: no levels, no order meaning. A `note` sits under its group.
+export const stack = [
+  {
+    label: "Languages",
+    items: ["Go", "Python", "JavaScript", "Bash"],
+    note: "Java and C/C++: academic basics.",
+  },
+  {
+    label: "AI",
+    items: ["LLM agents", "RAG", "MCP server development", "Computer vision (CNN, YOLOv8)"],
+  },
+  {
+    label: "Web & APIs",
+    items: ["React", "Tailwind CSS", "REST", "SSE", "WebSockets"],
+  },
+  {
+    label: "Architecture",
+    items: ["Hexagonal architecture", "Tauri 2.0"],
+  },
+  {
+    label: "Systems",
+    items: ["Linux (Debian, Ubuntu)", "Docker", "Podman", "Git", "GitHub Actions"],
+  },
+  {
+    label: "Testing",
+    items: ["Cypress", "Unit & integration tests"],
+  },
+  {
+    label: "Data",
+    items: ["SQL", "Database design"],
+    note: "Master's in Databases & AI.",
+  },
+];
+
+export const contact = {
+  sentence: "Questions or feedback: send me a message.",
+};

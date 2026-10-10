@@ -1,32 +1,35 @@
-import { lazy, Suspense } from "react";
-import { MotionConfig } from "framer-motion";
-import Navigation from "./components/Navigation";
-import HeroSection from "./components/HeroSection";
-import AboutSection from "./components/AboutSection";
-import Footer from "./components/Footer";
-
-// Below-the-fold sections are code-split so the hero paints first.
-const SkillsSection = lazy(() => import("./components/SkillsSection"));
-const ProjectsSection = lazy(() => import("./components/ProjectsSection"));
-const ContactSection = lazy(() => import("./components/ContactSection"));
+import Icons from "./components/Icons";
+import SiteHeader from "./components/SiteHeader";
+import SiteFooter from "./components/SiteFooter";
+import Hero from "./components/Hero";
+import NowSection from "./components/NowSection";
+import ProjectsSection from "./components/ProjectsSection";
+import WritingSection from "./components/WritingSection";
+import ExperienceSection from "./components/ExperienceSection";
+import StackSection from "./components/StackSection";
+import ContactSection from "./components/ContactSection";
 
 function App() {
   return (
-    <MotionConfig reducedMotion="user">
-      <div className="bg-ink text-body">
-        <Navigation />
-        <main>
-          <HeroSection />
-          <AboutSection />
-          <Suspense fallback={<div className="min-h-screen" aria-hidden="true" />}>
-            <SkillsSection />
-            <ProjectsSection />
-            <ContactSection />
-          </Suspense>
-        </main>
-        <Footer />
-      </div>
-    </MotionConfig>
+    <>
+      <a className="skip" href="#main">
+        Skip to content
+      </a>
+      <Icons />
+      <SiteHeader />
+      <main id="main" tabIndex={-1}>
+        <Hero />
+        <div className="frame">
+          <NowSection />
+          <ProjectsSection />
+          <WritingSection />
+          <ExperienceSection />
+          <StackSection />
+          <ContactSection />
+        </div>
+      </main>
+      <SiteFooter />
+    </>
   );
 }
 
