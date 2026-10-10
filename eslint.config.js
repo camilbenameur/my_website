@@ -5,7 +5,9 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist'] },
+  // public/*.js are the shared classic scripts (theme.js, keys.js, ui.js), copied byte for byte from
+  // the shared design layer (identical in the blog repo) and never edited here alone. docs/ is not site code.
+  { ignores: ['dist', 'public', 'docs'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
