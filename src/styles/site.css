@@ -1,0 +1,10 @@
+/* Portfolio only: what the shared base.css does not define (src/styles/base.css is shared with the blog).
+   Not shared with the blog. Loaded after tokens.css and base.css, inside the same layer. */
+
+/* Contact form: the honeypot is hidden from people and assistive tech; bots tend to fill it. */
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Contact form: states of the submit button and of the result line. */
+.btn:disabled { cursor: default; transform: none; background: var(--raised); color: var(--muted); border-color: var(--border-strong); box-shadow: none; }
+.status-msg.is-error { color: var(--danger); }
+

@@ -16,6 +16,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+# Production build settings are public (the FormSubmit endpoint ends up in the bundle anyway).
+!.env.production
 
 # Editor directories and files
 .vscode/*
@@ -27,6 +29,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local working notes, mockups and tooling for the redesign. Not committed. The copies of the shared
+# styles and scripts that the site uses live in src/styles and public/.
+docs/redesign/
+
+# Local tool configuration (it holds absolute paths of this machine).
+.claude/
 
 # Dev container
 .devcontainer/

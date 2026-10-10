@@ -1,21 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Camil Benameur, software engineer">
+  <!-- Open Graph card, art direction V1 "Terminal": one terminal window, two ghosts, no photo.
+       Text uses Geist and JetBrains Mono (see the font stacks); public/og-image.png is rendered from this file with the fonts loaded. -->
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0b1220" />
-      <stop offset="100%" stop-color="#1e40af" />
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#60a5fa" />
-      <stop offset="100%" stop-color="#93c5fd" />
-    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0" r="0.75">
+      <stop offset="0" stop-color="#7BE0A4" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#7BE0A4" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="30" stdDeviation="28" flood-color="#000" flood-opacity=".6"/>
+    </filter>
   </defs>
-  <rect width="1200" height="630" fill="url(#bg)" />
-  <circle cx="980" cy="120" r="160" fill="#1d4ed8" opacity="0.3" />
-  <circle cx="150" cy="520" r="220" fill="#0f172a" opacity="0.6" />
-  <rect x="80" y="90" width="1040" height="450" rx="28" fill="rgba(15, 23, 42, 0.55)" stroke="#3b82f6" stroke-width="2" />
-  <text x="140" y="230" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="#e2e8f0">Camil Benameur</text>
-  <text x="140" y="300" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="500" fill="#bfdbfe">Software Engineer | Go, Python & AI</text>
-  <rect x="140" y="340" width="420" height="8" rx="4" fill="url(#accent)" />
-  <text x="140" y="400" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#cbd5f5">Industrial orchestration, hexagonal architecture, and applied AI delivery</text>
-  <text x="140" y="440" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#94a3b8">Schneider Electric (Carros)</text>
+
+  <rect width="1200" height="630" fill="#0B0D11"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- ghost windows -->
+  <g fill="#12151B" stroke="#343C4B">
+    <g opacity=".48"><rect x="132.500" y="64.500" width="1040" height="450" rx="12"/><path d="M133 101h1039" stroke="#252B36"/></g>
+    <g opacity=".78"><rect x="106.500" y="82.500" width="1040" height="450" rx="12"/><path d="M107 119h1039" stroke="#252B36"/></g>
+  </g>
+
+  <!-- terminal window -->
+  <g filter="url(#shadow)">
+    <rect x="80.500" y="100.500" width="1040" height="450" rx="12" fill="#12151B" stroke="#252B36"/>
+  </g>
+  <clipPath id="win"><rect x="80.500" y="100.500" width="1040" height="450" rx="12"/></clipPath>
+  <g clip-path="url(#win)">
+    <rect x="80" y="100" width="1041" height="40" fill="#171B22"/>
+    <path d="M80 140.500h1041" stroke="#252B36"/>
+    <rect x="80" y="500" width="1041" height="51" fill="#171B22"/>
+    <path d="M80 500.500h1041" stroke="#252B36"/>
+  </g>
+  <rect x="80.500" y="100.500" width="1040" height="450" rx="12" fill="none" stroke="#252B36"/>
+  <g fill="#6B7485" opacity=".55"><circle cx="104" cy="120" r="4.500"/><circle cx="120" cy="120" r="4.500"/><circle cx="136" cy="120" r="4.500"/></g>
+  <text x="164" y="124.500" font-family="'JetBrains Mono Variable','JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" letter-spacing=".28" fill="#8C95A5">camil -- bash</text>
+
+  <g font-family="'JetBrains Mono Variable','JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="20">
+    <text x="116" y="188"><tspan fill="#7BE0A4" font-weight="500">camil@nice</tspan><tspan fill="#8C95A5">:~</tspan><tspan fill="#B4BBC8">$</tspan><tspan fill="#E7E9EE"> whoami</tspan></text>
+    <text x="116" y="468"><tspan fill="#7BE0A4" font-weight="500">camil@nice</tspan><tspan fill="#8C95A5">:~</tspan><tspan fill="#B4BBC8">$</tspan></text>
+    <rect x="284" y="450" width="12" height="24" fill="#7BE0A4"/>
+    <text x="116" y="531" font-size="20" fill="#B4BBC8">camilbenameur.com</text>
+  </g>
+
+  <g font-family="'Geist Variable','Geist Fallback',Geist,ui-sans-serif,system-ui,'Segoe UI',Arial,sans-serif">
+    <text x="112" y="304" font-size="120" font-weight="600" letter-spacing="-4.200" fill="#E7E9EE">Camil Benameur</text>
+    <text x="115" y="366" font-size="34" font-weight="400" letter-spacing="-.170" fill="#E7E9EE">I'm a software engineer. I've built an offline installer for</text>
+    <text x="115" y="414" font-size="34" font-weight="400" letter-spacing="-.170" fill="#E7E9EE">industrial PCs and a Go library for streamed LLM JSON.</text>
+  </g>
 </svg>
