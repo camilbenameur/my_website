@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Env files (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+# Production build settings are public (the FormSubmit endpoint ends up in the bundle anyway).
+!.env.production
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -29,3 +36,6 @@ docs/redesign/
 
 # Local tool configuration (it holds absolute paths of this machine).
 .claude/
+
+# Dev container
+.devcontainer/

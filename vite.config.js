@@ -19,6 +19,9 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     plugins: [react(), tailwindcss()],
+    server: {
+      host: true, // bind to all interfaces (0.0.0.0 + ::) so VS Code / dev-container IPv4 port forwarding reaches it
+    },
     build: {
       // Fonts are never inlined as data: URIs: the CSP is `font-src 'self'`, which refuses them.
       // (Fontsource ships a few tiny subsets, such as JetBrains Mono cyrillic-ext at 2 KB,
