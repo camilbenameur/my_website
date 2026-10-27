@@ -36,8 +36,8 @@
   <text x="164" y="124.500" font-family="'JetBrains Mono Variable','JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" letter-spacing=".28" fill="#8C95A5">camil -- bash</text>
 
   <g font-family="'JetBrains Mono Variable','JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="20">
-    <text x="116" y="188"><tspan fill="#7BE0A4" font-weight="500">camil@nice</tspan><tspan fill="#8C95A5">:~</tspan><tspan fill="#B4BBC8">$</tspan><tspan fill="#E7E9EE"> whoami</tspan></text>
-    <text x="116" y="468"><tspan fill="#7BE0A4" font-weight="500">camil@nice</tspan><tspan fill="#8C95A5">:~</tspan><tspan fill="#B4BBC8">$</tspan></text>
+    <text x="116" y="188"><tspan fill="#7BE0A4" font-weight="500">camil@lyon</tspan><tspan fill="#8C95A5">:~</tspan><tspan fill="#B4BBC8">$</tspan><tspan fill="#E7E9EE"> whoami</tspan></text>
+    <text x="116" y="468"><tspan fill="#7BE0A4" font-weight="500">camil@lyon</tspan><tspan fill="#8C95A5">:~</tspan><tspan fill="#B4BBC8">$</tspan></text>
     <rect x="284" y="450" width="12" height="24" fill="#7BE0A4"/>
     <text x="116" y="531" font-size="20" fill="#B4BBC8">camilbenameur.com</text>
   </g>
