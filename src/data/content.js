@@ -1,13 +1,14 @@
 // Single source of truth for everything the site says.
 // Components own how it looks; this file owns what it is.
 // The wording below is the approved site copy, byte for byte. Do not add a claim that is not already in it.
-// Camil's decision: the current role reads "Data & AI Engineer".
+// Camil's decision: the Call To Action role reads "Data & AI Engineer". It ended on 16 October 2026:
+// never write it as current. Camil lives in Lyon (cv_latex/profil/referentiel.md is the source of truth).
 // Page title, description and Open Graph tags live in index.html.
 
 export const profile = {
   name: "Camil Benameur",
   line: "I'm a software engineer. I've built an offline installer for industrial PCs and a Go library for streamed LLM JSON.",
-  context: "Nice · graduated 2025 · currently at Call To Action",
+  context: "Lyon · graduated 2025",
   links: [
     { label: "GitHub", href: "https://github.com/camilbenameur" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/camil-benameur-14a762194/" },
@@ -18,7 +19,7 @@ export const profile = {
 export const now = {
   // Update the caption whenever the text changes.
   caption: "October 2026",
-  text: "I joined Call To Action (Bonum Group) in Nice in August 2026, so it's early days. The role covers automating and optimizing data-operations processes (Python, SQL) on fully on-premise infrastructure with a local AI server, querying MS SQL, MariaDB and MongoDB, and full-stack development of internal tools and campaign scripts (JavaScript).",
+  text: "I'm based in Lyon and available now. From August to October 2026, I worked at Call To Action (Bonum Group) in Nice on data operations and internal tools, including a guarded write tool for SQL Server, tested in CI against SQL Server 2019 and 2022, and the move of an internal app to Docker with GitHub Actions CI/CD.",
 };
 
 // Order is the order on the page and in the hero's `ls projects/` listing.
@@ -101,8 +102,8 @@ export const experience = [
   {
     role: "Data & AI Engineer",
     org: "Call To Action (Bonum Group)",
-    from: { iso: "2026-08", label: "Aug 2026" },
-    to: null,
+    from: { iso: "2026-08", label: "Aug" },
+    to: { iso: "2026-10", label: "Oct 2026" },
   },
   {
     role: "Software Engineer",
