@@ -9,7 +9,7 @@ import { profile, projects } from "../data/content";
 function Prompt({ children }) {
   return (
     <p className="prompt" aria-hidden="true">
-      <span className="u">camil@nice</span>
+      <span className="u">camil@lyon</span>
       <span className="p">:~</span>
       <span className="d">$</span> {children}
     </p>
