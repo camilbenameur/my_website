@@ -1,0 +1,146 @@
+---
+// `./contact.sh`: the form works without JavaScript (a plain POST to FormSubmit, which then redirects to
+// /merci/ or /en/thanks/). With JavaScript it validates in place and sends through FormSubmit's AJAX
+// endpoint, reading its JSON verdict (it answers 200 even when it did not forward the message).
+import { form, routes, sections, site, ui } from '../data/site';
+import { anchor, tr, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const id = anchor({ id: 'contact', en: 'contact' }, lang);
+const s = sections.contact;
+const next = new URL(routes.thanks[lang], site.origin).href;
+const errors = { name: tr(form.errors.name, lang), email: tr(form.errors.email, lang), message: tr(form.errors.message, lang) };
+---
+<section class="section wrap" id={id} aria-labelledby={`${id}-title`}>
+  <div class="contact grid">
+    <div class="contact__head">
+      <SectionHead id={id} lang={lang} command={tr(s.command, lang)} title={tr(s.title, lang)} intro={tr(s.intro, lang)} />
+      <ul class="contact__links" data-reveal="fade">
+        <li><a class="link ext tap" href={site.links.linkedin} target="_blank" rel="me noopener">LinkedIn<span class="sr-only"> {tr(ui.newTab, lang)}</span></a></li>
+        <li><a class="link ext tap" href={site.links.github} target="_blank" rel="me noopener">GitHub<span class="sr-only"> {tr(ui.newTab, lang)}</span></a></li>
+        <li><a class="link tap go" href={tr(site.links.blog, lang)}>Blog</a></li>
+      </ul>
+      <p class="contact__free" data-reveal="fade">{tr(s.freelance, lang)}</p>
+    </div>
+    <div class="win contact__win" data-reveal="up" data-print="form">
+      <div class="win__bar">
+        <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="win__title">contact.sh</span>
+      </div>
+      <form class="form" method="post" action={site.form.post} data-form data-ajax={site.form.ajax} data-errors={JSON.stringify(errors)} data-sending={tr(form.sending, lang)} data-sent={tr(form.sent, lang)} data-failed={tr(form.failed, lang)} novalidate>
+        <input type="hidden" name="_subject" value={tr(form.subject, lang)} />
+        <input type="hidden" name="_next" value={next} />
+        <input type="hidden" name="_template" value="table" />
+        <div class="form__hp" aria-hidden="true"><label>Website <input type="text" name="_honey" tabindex="-1" autocomplete="off" /></label></div>
+        <div class="field">
+          <label for="f-name"><span class="field__p mono" aria-hidden="true">$</span> {tr(form.name, lang)}</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err" />
+          <p class="field__err" id="f-name-err" data-err-for="name"></p>
+        </div>
+        <div class="field">
+          <label for="f-email"><span class="field__p mono" aria-hidden="true">$</span> {tr(form.email, lang)}</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" required aria-describedby="f-email-err" />
+          <p class="field__err" id="f-email-err" data-err-for="email"></p>
+        </div>
+        <div class="field">
+          <label for="f-message"><span class="field__p mono" aria-hidden="true">$</span> {tr(form.message, lang)}</label>
+          <textarea id="f-message" name="message" rows="6" required aria-describedby="f-message-err"></textarea>
+          <p class="field__err" id="f-message-err" data-err-for="message"></p>
+        </div>
+        <p class="form__privacy" id="f-privacy">{tr(form.privacy, lang)} <a class="link tap" href={routes.legal[lang]}>{tr(form.privacyLink, lang)}</a></p>
+        <div class="form__foot">
+          <button class="btn btn--primary" type="submit" aria-describedby="f-privacy" data-submit>{tr(form.send, lang)} <kbd aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12"><path d="M10 2v4.5H2.5M5 4 2.5 6.5 5 9" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></kbd></button>
+          <p class="form__status mono" role="status" data-status></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact { align-items: start; }
+  .contact__head { grid-column: 1 / span 5; }
+  .contact__win { grid-column: 7 / -1; }
+  .contact__links { list-style: none; padding: 0; margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px 24px; font-size: var(--t-m); }
+  .contact__free { margin-top: 28px; padding-left: 14px; border-left: 2px solid var(--border-strong); color: var(--muted); font-size: var(--t-s); max-width: 30rem; }
+  .form { padding: clamp(18px, 2.4vw, 28px); display: grid; gap: 18px; }
+  .form__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .field { display: grid; gap: 6px; }
+  .field label { font-weight: 600; font-size: var(--t-s); }
+  .field__p { color: var(--green); }
+  .field input, .field textarea { width: 100%; min-height: 46px; padding: 11px 12px; border: 1px solid var(--input-border); border-radius: var(--r-btn); background: var(--bg); color: var(--fg); font-family: var(--f-mono); font-size: 15px; caret-color: var(--green); transition: border-color var(--d-fast) var(--e-out), box-shadow var(--d-fast) var(--e-out); }
+  .field textarea { resize: vertical; min-height: 140px; line-height: 1.5; }
+  .field input:hover, .field textarea:hover { border-color: var(--muted); }
+  .field input:focus-visible, .field textarea:focus-visible { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgb(123 224 164 / 0.25); }
+  .field [aria-invalid='true'] { border-color: var(--red); }
+  .field__err { min-height: 0; font-size: var(--t-xs); color: var(--red); font-family: var(--f-mono); }
+  .field__err:empty { display: none; }
+  .form__privacy { font-size: var(--t-xs); color: var(--muted); line-height: 1.55; }
+  .form__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .form__status { font-size: var(--t-xs); color: var(--green); }
+  .form__status.is-error { color: var(--red); }
+  @media (max-width: 1023px) { .contact__head, .contact__win { grid-column: 1 / -1; } .contact__win { margin-top: 36px; } }
+</style>
+
+<script>
+  import { onPage } from '../engine';
+  onPage(() => {
+    const f = document.querySelector<HTMLFormElement>('[data-form]');
+    if (!f) return;
+    const errors = JSON.parse(f.dataset.errors || '{}') as Record<string, string>;
+    const status = f.querySelector<HTMLElement>('[data-status]')!;
+    const btn = f.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const label = btn.innerHTML;
+    const fields = ['name', 'email', 'message'] as const;
+    const el = (n: string) => f.elements.namedItem(n) as HTMLInputElement | HTMLTextAreaElement;
+
+    const check = (n: (typeof fields)[number]) => {
+      const v = el(n).value.trim();
+      const ok = n === 'email' ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) : v.length > 0;
+      el(n).setAttribute('aria-invalid', String(!ok));
+      f.querySelector<HTMLElement>(`[data-err-for="${n}"]`)!.textContent = ok ? '' : errors[n];
+      return ok;
+    };
+
+    const onInput = (e: Event) => {
+      const n = (e.target as HTMLInputElement).name as (typeof fields)[number];
+      if (fields.includes(n) && el(n).getAttribute('aria-invalid') === 'true') check(n);
+      status.textContent = '';
+      status.classList.remove('is-error');
+    };
+
+    const onSubmit = async (e: SubmitEvent) => {
+      e.preventDefault();
+      const bad = fields.filter((n) => !check(n));
+      if (bad.length) { el(bad[0]).focus(); return; }
+      const data = new FormData(f);
+      if (data.get('_honey')) { f.reset(); status.textContent = f.dataset.sent!; return; } // a bot: pretend
+      btn.disabled = true;
+      btn.textContent = f.dataset.sending!;
+      status.textContent = '';
+      status.classList.remove('is-error');
+      try {
+        data.delete('_next');
+        const res = await fetch(f.dataset.ajax!, { method: 'POST', headers: { Accept: 'application/json' }, body: data });
+        const json = await res.json().catch(() => null);
+        const ok = res.ok && json && (json.success === true || json.success === 'true');
+        if (!ok) throw new Error(`FormSubmit ${res.status}: ${json?.message ?? 'no JSON'}`);
+        f.reset();
+        fields.forEach((n) => el(n).removeAttribute('aria-invalid'));
+        status.textContent = f.dataset.sent!;
+      } catch (err) {
+        console.warn(err);
+        status.textContent = f.dataset.failed!;
+        status.classList.add('is-error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = label;
+      }
+    };
+
+    f.addEventListener('input', onInput);
+    f.addEventListener('submit', onSubmit);
+    return () => { f.removeEventListener('input', onInput); f.removeEventListener('submit', onSubmit); };
+  });
+</script>

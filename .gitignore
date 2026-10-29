@@ -39,3 +39,9 @@ docs/redesign/
 
 # Dev container
 .devcontainer/
+
+# Astro and QA output (screenshots, audits, extracted text)
+.astro/
+.shots/
+.shots-*
+.qa/

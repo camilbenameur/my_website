@@ -1,0 +1,56 @@
+---
+// `cat ROADMAP.md`: planned projects as unticked boxes. A spec is not a project: nothing here is shown as
+// done, and no date is given until Camil commits to one.
+import { sections, ui } from '../data/site';
+import { planned } from '../data/projects';
+import { anchor, tr, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const id = anchor({ id: 'en-preparation', en: 'coming-next' }, lang);
+const s = sections.planned;
+---
+<section class="section wrap" id={id} aria-labelledby={`${id}-title`}>
+  <div class="todo grid">
+    <div class="todo__head">
+      <SectionHead id={id} lang={lang} command={tr(s.command, lang)} title={tr(s.title, lang)} intro={tr(s.intro, lang)} />
+    </div>
+    <div class="win todo__win" data-reveal="up">
+      <div class="win__bar">
+        <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="win__title">ROADMAP.md</span>
+        <span class="win__meta">{planned.length} {lang === 'fr' ? 'à venir' : 'coming'}</span>
+      </div>
+      <ul class="todo__list" data-print="todo">
+        {planned.map((p, i) => (
+          <li>
+            <span class="todo__box mono" aria-hidden="true">- [ ]</span>
+            <span class="todo__text">{tr(p.text, lang)}<span class="sr-only"> ({tr(ui.status.prevu, lang)})</span></span>
+            <span class="todo__n mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          </li>
+        ))}
+        <li class="todo__next" aria-hidden="true">
+          <span class="todo__box mono">- [ ]</span>
+          <span><i class="todo__caret"></i></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .todo { align-items: start; }
+  .todo__head { grid-column: 1 / span 5; }
+  .todo__win { grid-column: 6 / -1; margin-top: 6px; }
+  .todo__list { list-style: none; padding: 8px 0; }
+  .todo__list li { display: grid; grid-template-columns: 4.2ch minmax(0, 1fr) auto; gap: 14px; align-items: baseline; padding: 14px clamp(16px, 2vw, 24px); border-bottom: 1px solid var(--border); }
+  .todo__list li:last-child { border-bottom: 0; }
+  .todo__box { color: var(--muted); font-size: var(--t-s); }
+  .todo__text { color: var(--text-2); }
+  .todo__next { border-bottom: 0; }
+  .todo__caret { display: inline-block; width: 0.6em; height: 1.1em; background: var(--green); vertical-align: -0.2em; }
+  :global(.js.motion) .todo__next.is-waiting .todo__caret { animation: wait 1s steps(1) 5; }
+  @keyframes wait { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .todo__n { font-size: var(--t-xs); color: var(--muted); }
+  @media (max-width: 1023px) { .todo__head, .todo__win { grid-column: 1 / -1; } .todo__win { margin-top: 32px; } }
+</style>

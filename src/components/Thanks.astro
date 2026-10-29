@@ -1,0 +1,23 @@
+---
+// Where FormSubmit sends a visitor who posted the form without JavaScript. Not indexed.
+import Base from '../layouts/Base.astro';
+import { routes, thanks, ui } from '../data/site';
+import { tr, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<Base title={tr(thanks.title, lang)} description={tr(thanks.text, lang)} noindex>
+  <section class="thanks wrap">
+    <p class="cmd" aria-hidden="true"><span class="cmd__prompt"><b>camil</b>@<i>lyon</i>:~$</span> <span class="cmd__text">./contact.sh</span></p>
+    <p class="thanks__ok mono" aria-hidden="true">exit 0</p>
+    <h1 class="h2">{tr(thanks.title, lang)}</h1>
+    <p class="intro">{tr(thanks.text, lang)}</p>
+    <p class="thanks__back"><a class="btn" href={routes.home[lang]}>{tr(ui.back, lang)}</a></p>
+  </section>
+</Base>
+
+<style>
+  .thanks { padding-top: clamp(3rem, 10vw, 8rem); min-height: 60svh; }
+  .thanks__ok { color: var(--green); font-size: var(--t-xs); margin-bottom: 12px; }
+  .thanks__back { margin-top: 32px; }
+</style>

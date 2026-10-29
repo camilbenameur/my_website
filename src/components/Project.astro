@@ -1,0 +1,104 @@
+---
+// A project page, opened like a README in the terminal. The title is the shared element: it arrives
+// from its row in the home list (motion/setup.ts). Content from src/data/projects.ts only.
+import Base from '../layouts/Base.astro';
+import { routes, sections, ui } from '../data/site';
+import { projects } from '../data/projects';
+import { anchor, tr, type Lang } from '../i18n';
+interface Props { lang: Lang; slug: string }
+const { lang, slug } = Astro.props;
+const withPage = projects.filter((p) => p.page);
+const i = withPage.findIndex((p) => p.slug === slug);
+const p = withPage[i];
+const page = p.page!;
+const next = withPage[(i + 1) % withPage.length];
+const base = routes.project[lang];
+const back = `${routes.home[lang]}#${anchor({ id: 'realisations', en: 'work' }, lang)}`;
+const blogLang = lang === 'fr' ? 'fr/' : '';
+const name = tr(p.name, lang);
+const title = name;
+const description = tr(p.line, lang);
+---
+<Base title={title} description={description}>
+  <article class="case wrap">
+    <p class="cmd case__cmd" aria-hidden="true"><span class="cmd__prompt"><b>camil</b>@<i>lyon</i>:~$</span> <span class="cmd__text">cat {lang === 'fr' ? 'projets' : 'projects'}/{p.slug}/README.md</span></p>
+    <nav class="case__crumbs mono" aria-label={lang === 'fr' ? 'Fil d’Ariane' : 'Breadcrumb'} data-enter>
+      <a class="link tap go go--back" href={back}>{tr(sections.work.title, lang)}</a> <span aria-hidden="true">/</span> <span aria-current="page">{name}</span>
+    </nav>
+    <header class="case__head">
+      <h1 class="case__title" data-shared-target={p.slug}>{name}</h1>
+      <p class="case__meta mono" data-enter>
+        <span class={`flag flag--${p.status}`}><span aria-hidden="true">[{tr(ui.flag[p.status], lang)}]</span><span class="sr-only">{tr(ui.status[p.status], lang)}</span></span>
+        <span>{tr(p.where, lang)}</span>
+      </p>
+      <p class="case__lead" data-enter>{tr(page.lead, lang)}</p>
+    </header>
+
+    <div class="case__grid">
+      <div class="case__blocks">
+        {page.blocks.map((b) => (
+          <section class="case__block" data-enter>
+            <h2 class="case__h"><span class="mono" aria-hidden="true">## </span>{tr(b.h, lang)}</h2>
+            <ul>{b.items.map((it) => <li>{tr(it, lang)}</li>)}</ul>
+          </section>
+        ))}
+      </div>
+      <aside class="case__side" data-enter>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__title">stack</span></div>
+          <div class="win__body">
+            <h2 class="sr-only">{lang === 'fr' ? 'Technologies' : 'Technologies'}</h2>
+            <ul class="case__stack">{page.stack.map((s) => <li>{s}</li>)}</ul>
+            <p class="case__limit"><span class="mono" aria-hidden="true"># </span>{tr(page.limit, lang)}</p>
+            {page.links && (
+              <ul class="case__links">
+                {page.links.map((l) => {
+                  const href = l.href.replace('{lang}', blogLang);
+                  const external = !href.startsWith('https://blog.camilbenameur.com');
+                  return <li><a class:list={['link', 'tap', external ? 'ext' : 'go']} href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>{tr(l.label, lang)}{external && <span class="sr-only"> {tr(ui.newTab, lang)}</span>}</a></li>;
+                })}
+              </ul>
+            )}
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <nav class="case__next" aria-label={lang === 'fr' ? 'Projet suivant' : 'Next project'} data-enter>
+      <a class="nextp" href={`${base}${next.slug}/`} data-shared={next.slug}>
+        <span class="nextp__cmd mono">cd ../{next.slug}</span>
+        <span class="nextp__name" data-shared-name>{tr(next.name, lang)}</span>
+      </a>
+      <a class="link mono tap" href={back}>cd ~</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .case { padding-top: clamp(2rem, 5vw, 4rem); }
+  .case__crumbs { font-size: var(--t-xs); color: var(--muted); margin-top: 6px; }
+  .case__head { margin-top: clamp(1.5rem, 4vw, 3rem); max-width: 60rem; }
+  .case__title { font-size: clamp(2.6rem, 1.2rem + 5.4vw, 6.25rem); letter-spacing: -0.05em; line-height: 0.95; margin-left: -0.05em; transform-origin: 0 0; }
+  .case__meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 18px; font-size: var(--t-xs); color: var(--muted); }
+  .case__lead { margin-top: 22px; font-size: var(--t-m); color: var(--text-2); line-height: 1.5; max-width: 46rem; }
+  .case__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: var(--gutter); margin-top: clamp(2.5rem, 5vw, 4.5rem); align-items: start; }
+  .case__block + .case__block { margin-top: 40px; }
+  .case__h { font-size: var(--t-m); font-weight: 650; letter-spacing: -0.02em; }
+  .case__h .mono { color: var(--muted); font-weight: 400; }
+  .case__block ul { margin-top: 14px; padding: 0; list-style: none; display: grid; gap: 12px; }
+  .case__block li { position: relative; padding-left: 22px; color: var(--text-2); max-width: 44rem; }
+  .case__block li::before { content: '-'; position: absolute; left: 4px; color: var(--green); font-family: var(--f-mono); }
+  .case__side { position: sticky; top: 92px; }
+  .case__stack { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; }
+  .case__stack li { padding: 3px 9px; border-radius: var(--r-chip); background: var(--raised); border: 1px solid var(--border); font-size: var(--t-xs); font-family: var(--f-mono); }
+  .case__limit { margin-top: 18px; font-size: var(--t-s); color: var(--text-2); }
+  .case__limit .mono { color: var(--muted); }
+  .case__links { margin-top: 18px; list-style: none; padding: 0; display: grid; gap: 10px; font-size: var(--t-s); }
+  .case__next { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 24px; margin-top: var(--section); padding-top: 32px; border-top: 1px solid var(--border); }
+  .nextp { display: grid; gap: 8px; text-decoration: none; color: var(--fg); }
+  .nextp__cmd { font-size: var(--t-xs); color: var(--muted); transition: color var(--d-ui) var(--e-out); }
+  .nextp__name { font-size: var(--t-xl); font-weight: 700; letter-spacing: -0.045em; line-height: 1; transform-origin: 0 0; transition: transform var(--d-ui) var(--e-out); }
+  .nextp:hover .nextp__cmd { color: var(--green); }
+  .nextp:hover .nextp__name { transform: translateX(10px); }
+  @media (max-width: 1023px) { .case__grid { grid-template-columns: 1fr; } .case__side { position: static; } }
+</style>

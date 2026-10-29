@@ -1,0 +1,60 @@
+---
+// `ls -l realisations/`: one row per project. A row with a page links to it; the name travels to the
+// page title (motion/setup.ts, data-shared). Hover: the row turns to inverse video and a caret arrives.
+import { routes, sections, ui } from '../data/site';
+import { projects } from '../data/projects';
+import { anchor, tr, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const id = anchor({ id: 'realisations', en: 'work' }, lang);
+const s = sections.work;
+const shown = projects.filter((p) => p.status !== 'prevu');
+---
+<section class="section wrap" id={id} aria-labelledby={`${id}-title`}>
+  <SectionHead id={id} lang={lang} command={tr(s.command, lang)} title={tr(s.title, lang)} intro={tr(s.intro, lang)} />
+  <ul class="ls">
+    {shown.map((p) => {
+      const href = p.page ? `${routes.project[lang]}${p.slug}/` : undefined;
+      const Tag = href ? 'a' : 'div';
+      return (
+        <li data-print="row">
+          <Tag class:list={['ls__row', { 'ls__row--link': href }]} href={href} data-shared={href ? p.slug : undefined}>
+            <span class={`flag flag--${p.status}`}><span aria-hidden="true">[{tr(ui.flag[p.status], lang)}]</span><span class="sr-only">{tr(ui.status[p.status], lang)}{lang === 'fr' ? ' :' : ':'} </span></span>
+            <span class="ls__main">
+              <span class="ls__name" data-shared-name>{tr(p.name, lang)}</span>
+              <span class="ls__line">{tr(p.line, lang)}</span>
+            </span>
+            <span class="ls__where mono">{tr(p.where, lang)}</span>
+            <span class="ls__go mono" aria-hidden="true">{href ? 'cd ›' : p.status === 'prive' ? (lang === 'fr' ? 'sur demande' : 'on request') : ''}</span>
+          </Tag>
+        </li>
+      );
+    })}
+  </ul>
+</section>
+
+<style>
+  .ls { list-style: none; padding: 0; margin-top: clamp(2rem, 4vw, 3.5rem); border-top: 1px solid var(--border); }
+  .ls__row { position: relative; display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) 17.5rem 6.5rem; gap: 6px var(--gutter); align-items: baseline; padding: 22px 14px; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--fg); transition: background-color var(--d-ui) var(--e-out), color var(--d-ui) var(--e-out); }
+  .ls__row::before { content: '›'; position: absolute; left: -2px; top: 22px; font-family: var(--f-mono); color: var(--bg); opacity: 0; transform: translateX(-8px); transition: opacity var(--d-ui) var(--e-out), transform var(--d-ui) var(--e-out); }
+  .ls__main { display: grid; gap: 6px; }
+  .ls__name { font-size: var(--t-l); font-weight: 650; letter-spacing: -0.03em; line-height: 1.1; transform-origin: 0 0; }
+  .ls__line { color: var(--text-2); max-width: 46rem; }
+  .ls__where { font-size: var(--t-xs); color: var(--muted); }
+  .ls__go { justify-self: end; font-size: var(--t-xs); color: var(--muted); white-space: nowrap; }
+  .ls__row--link:hover, .ls__row--link:focus-visible { background: var(--fg); color: var(--bg); outline-offset: 0; }
+  .ls__row--link:hover::before, .ls__row--link:focus-visible::before { opacity: 1; transform: none; }
+  .ls__row--link:hover :is(.ls__line, .ls__where, .ls__go, .flag), .ls__row--link:focus-visible :is(.ls__line, .ls__where, .ls__go, .flag) { color: var(--bg); }
+  .ls__row--link .ls__go { color: var(--blue); }
+  .ls__row--link:hover .ls__go { transform: translateX(4px); }
+  .ls__go { transition: transform var(--d-ui) var(--e-out); }
+  .ls__row--link:active { background: var(--text-2); }
+  @media (max-width: 1023px) {
+    .ls__row { grid-template-columns: minmax(0, 1fr) auto; padding: 20px 8px; }
+    .ls__main { grid-column: 1 / -1; grid-row: 2; }
+    .ls__where { grid-column: 1; grid-row: 3; }
+    .ls__go { grid-column: 2; grid-row: 3; }
+    .flag { grid-row: 1; }
+  }
+</style>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>OG card</title>
+<style>
+  @font-face { font-family: 'Geist'; src: url('../../public/fonts/geist-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+  @font-face { font-family: 'JB'; src: url('../../public/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); font-weight: 100 800; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; background: #0b0d11; color: #e7e9ee; overflow: hidden; }
+  body { font-family: 'Geist', sans-serif; padding: 64px 72px; position: relative;
+    background-image: radial-gradient(rgb(255 255 255 / .045) 1px, transparent 1.2px); background-size: 24px 24px; }
+  .mono { font-family: 'JB', monospace; }
+  .prompt { font-size: 24px; color: #8c95a5; }
+  .prompt b { color: #7be0a4; font-weight: 600; } .prompt i { color: #8ab4ff; font-style: normal; } .prompt span { color: #e7e9ee; }
+  h1 { margin-top: 26px; font-size: 98px; font-weight: 730; line-height: .94; letter-spacing: -.05em; margin-left: -5px; }
+  h1 .dim { color: #8c95a5; display: block; }
+  .win { position: absolute; right: 64px; top: 300px; width: 410px; background: #12151b; border: 1px solid #252b36; border-radius: 14px; box-shadow: 0 30px 60px -20px rgb(0 0 0 / .8); overflow: hidden; }
+  .bar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: #171b22; border-bottom: 1px solid #252b36; font-size: 15px; color: #b4bbc8; }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: #343c4b; display: inline-block; }
+  pre { font-family: 'JB', monospace; font-size: 17px; line-height: 1.65; padding: 18px 20px; color: #8c95a5; }
+  .k { color: #8ab4ff; } .s { color: #7be0a4; } .h { color: #e8a0d0; } .c { color: #ff8a8a; background: rgb(255 138 138 / .12); }
+  .foot { position: absolute; left: 72px; right: 72px; bottom: 56px; display: flex; justify-content: space-between; font-size: 22px; color: #b4bbc8; }
+  .foot b { color: #7be0a4; font-weight: 500; }
+</style>
+</head>
+<body>
+  <p class="prompt mono"><b>camil</b>@<i>lyon</i>:~$ <span>whoami</span></p>
+  <h1 data-title>Camil Benameur,<span class="dim" data-role>ingénieur IA.</span></h1>
+  <div class="win">
+    <div class="bar mono"><i></i><i></i><i></i>&nbsp;<span data-file>profil.json</span></div>
+<pre data-json>{
+  <span class="k">"role"</span>: <span class="s">"ingénieur IA"</span>,
+  <span class="k">"ville"</span>: <span class="s">"Lyon"</span>,
+  <span class="k">"ia"</span>: [<span class="s">"MCP"</span>, <span class="s">"RAG"</span>],
+  <span class="k">"prochain"</span>: [<span class="c">"agent Lang</span><span class="h">"]}</span></pre>
+  </div>
+  <p class="foot mono"><span data-meta>Lyon · diplômé en 2025</span><span><b>camilbenameur.com</b></span></p>
+</body>
+</html>

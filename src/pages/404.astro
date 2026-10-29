@@ -1,0 +1,40 @@
+---
+// Served for any unknown path (wrangler.jsonc: not_found_handling = 404-page), in both languages.
+import Base from '../layouts/Base.astro';
+import { notFound, nav, routes } from '../data/site';
+import { projects } from '../data/projects';
+const pages = [
+  { href: '/', label: 'accueil, home' },
+  ...nav.map((s) => ({ href: `/#${s.id}`, label: s.label.fr.toLowerCase() })),
+  ...projects.filter((p) => p.page).map((p) => ({ href: `${routes.project.fr}${p.slug}/`, label: p.slug })),
+  { href: '/en/', label: 'english version' },
+];
+---
+<Base title={`${notFound.title.fr} · ${notFound.title.en}`} description={notFound.description.fr} noindex alternate={false}>
+  <section class="nf wrap">
+    <p class="nf__err mono">bash: cd: <span data-path>/cette-page</span>: No such file or directory</p>
+    <h1 class="h2">{notFound.title.fr}<span class="nf__en" lang="en"> · {notFound.title.en}</span></h1>
+    <p class="intro">{notFound.text.fr} <span lang="en" class="muted">{notFound.text.en}</span></p>
+    <div class="win nf__win">
+      <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__title">ls ~</span></div>
+      <ul class="nf__ls mono">
+        {pages.map((p) => <li><a href={p.href}>{p.label}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</Base>
+<script is:inline>
+  // Show the path that was asked for (text only).
+  (function () { var el = document.querySelector('[data-path]'); if (el) el.textContent = location.pathname; })();
+</script>
+
+<style>
+  .nf { padding-top: clamp(3rem, 9vw, 7rem); }
+  .nf__err { color: var(--red); font-size: var(--t-s); margin-bottom: 18px; word-break: break-all; }
+  .nf__en { color: var(--muted); }
+  .nf__win { margin-top: 40px; max-width: 40rem; }
+  .nf__ls { list-style: none; padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 6px 20px; font-size: var(--t-s); }
+  .nf__ls a { color: var(--blue); text-decoration: none; display: inline-block; padding: 4px 0; transition: transform var(--d-fast) var(--e-out); }
+  .nf__ls a::before { content: '› '; color: var(--muted); }
+  .nf__ls a:hover { text-decoration: underline; transform: translateX(4px); }
+</style>
