@@ -57,6 +57,9 @@ export const scrollPadTop = () => Number.parseFloat(getComputedStyle(document.do
 
 export function scrollToTarget(target: string | HTMLElement | number, { offset = 0, immediate = false } = {}) {
   if (lenis) {
+    // Right after a page swap, Lenis still holds the old page's height and would stop the jump at
+    // that limit (/#contact from a project page landed 890 px down): measure the new page first.
+    if (immediate) lenis.resize();
     // force: also while the scroll is stopped (loader, page transition). Lenis subtracts html's
     // scroll-padding-top (and the target's scroll-margin-top) from an element target by itself.
     lenis.scrollTo(target, { offset, immediate, force: true, duration: 1.4, easing: (t) => 1 - Math.pow(1 - t, 4) });
