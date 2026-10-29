@@ -1,0 +1,83 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { site, ui } from '../data/site';
+import { altPath, langOf, tr } from '../i18n';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Shell from '../components/Shell.astro';
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  alternate?: boolean; // false on pages that exist in one language only (the 404)
+  jsonLd?: Record<string, unknown>;
+}
+const lang = langOf(Astro.url.pathname);
+const { title, description = tr(site.description, lang), noindex = false, alternate = true, jsonLd } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : tr(site.title, lang);
+const path = Astro.url.pathname;
+const canonical = new URL(path, Astro.site).href;
+const other = altPath(path);
+const og = new URL(lang === 'en' ? '/og-en.png' : '/og.png', Astro.site).href;
+---
+<!doctype html>
+<html lang={lang} transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    {alternate && <link rel="alternate" hreflang={lang} href={canonical} />}
+    {alternate && <link rel="alternate" hreflang={lang === 'fr' ? 'en' : 'fr'} href={new URL(other, Astro.site).href} />}
+    {alternate && <link rel="alternate" hreflang="x-default" href={new URL(lang === 'fr' ? path : other, Astro.site).href} />}
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0d11" />
+    <meta name="author" content={site.name} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_GB'} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={tr(site.title, lang)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
+    <!-- Before first paint: flag JS and motion, so CSS can stage the entrance without a flash. -->
+    <script is:inline>
+      var h = document.documentElement;
+      h.classList.add('js');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) h.classList.add('motion');
+      try { if (localStorage.getItem('keys') === 'off') h.classList.add('keys-off'); } catch (e) {}
+    </script>
+    <ClientRouter fallback="swap" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{tr(ui.skip, lang)}</a>
+    <div id="curtain" transition:persist="curtain" aria-hidden="true"><span class="curtain__line"><b>camil</b>@lyon:~$ <span data-curtain-cmd></span></span></div>
+    <Header lang={lang} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <Shell lang={lang} />
+    <script>
+      import { start } from '../engine/astro';
+      import { setupMotion } from '../motion/setup';
+      import '../motion/sections';
+      start(setupMotion);
+    </script>
+  </body>
+</html>

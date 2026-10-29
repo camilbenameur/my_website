@@ -1,0 +1,15 @@
+{
+  // camilbenameur.com: a static site served by Workers static assets.
+  // Workers Builds runs `npm run build`, then `npx wrangler deploy` on main and
+  // `npx wrangler versions upload` on other branches (a preview version, never live).
+  // Without this file, `versions upload` failed with "Missing entry-point to Worker script or to
+  // assets directory", and `deploy` relied on Wrangler guessing the framework.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mywebsite",
+  "compatibility_date": "2026-10-23",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
