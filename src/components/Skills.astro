@@ -1,0 +1,74 @@
+---
+// `cat competences.toml`: three tables in one file. What was not practised never sits in the same
+// table as what was (cv_latex CV-GUIDELINES.md §3). Keys are TOML-like; the table titles say it in words.
+import { sections } from '../data/site';
+import { skills } from '../data/skills';
+import { anchor, tr, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const id = anchor({ id: 'competences', en: 'skills' }, lang);
+const s = sections.skills;
+const file = lang === 'fr' ? 'competences.toml' : 'skills.toml';
+const prose = (v: string[] | { fr: string; en: string }) => !Array.isArray(v);
+---
+<section class="section wrap" id={id} aria-labelledby={`${id}-title`}>
+  <SectionHead id={id} lang={lang} command={tr(s.command, lang)} title={tr(s.title, lang)} intro={tr(s.intro, lang)} />
+  <div class="win toml" data-reveal="up">
+    <div class="win__bar">
+      <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="win__title">{file}</span>
+      <span class="win__meta">TOML</span>
+    </div>
+    <div class="toml__body">
+      {skills.map((t) => (
+        <section class:list={['toml__table', `toml__table--${t.id}`]} aria-labelledby={`skills-${t.id}`} data-print="table">
+          <p class="toml__head mono" aria-hidden="true"><span class="p">[</span>{t.id}<span class="p">]</span></p>
+          <h3 class="toml__title" id={`skills-${t.id}`}>{tr(t.title, lang)}</h3>
+          <dl class="toml__rows">
+            {t.rows.map((r) => (
+              <div class="toml__row" data-print="trow">
+                <dt class="mono">{tr(r.key, lang)}<span class="p" aria-hidden="true"> =</span></dt>
+                <dd>
+                  {prose(r.values) ? <p class="toml__prose">{tr(r.values as { fr: string; en: string }, lang)}</p> : <ul class="chips">{(r.values as string[]).map((v) => <li>{v}</li>)}</ul>}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {t.id === 'en_entreprise' && <div class="toml__fill" aria-hidden="true" data-print="fill">{Array.from({ length: 18 }, () => <span>~</span>)}</div>}
+          {t.note && <p class="toml__note" data-print="fade"><span class="mono p" aria-hidden="true"># </span>{tr(t.note, lang)}</p>}
+        </section>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .toml { margin-top: clamp(2rem, 4vw, 3.5rem); }
+  .toml__body { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+  .toml__table { padding: clamp(18px, 2.4vw, 32px); }
+  .toml__table--en_entreprise { grid-row: span 2; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  /* vim's empty-line tildes take the height the shorter column leaves free: they size to nothing */
+  .toml__fill { flex: 1 1 0; min-height: 0; overflow: hidden; margin-top: 14px; font-family: var(--f-mono); font-size: var(--t-xs); line-height: 2; color: var(--faint); user-select: none; }
+  .toml__fill span { display: block; }
+  .toml__table--pas_encore { border-top: 1px dashed var(--border-strong); background: repeating-linear-gradient(135deg, transparent 0 10px, rgb(255 255 255 / 0.012) 10px 20px); }
+  .toml__head { font-size: var(--t-xs); color: var(--yellow); }
+  .p { color: var(--muted); }
+  .toml__title { margin-top: 6px; font-size: var(--t-m); font-weight: 650; letter-spacing: -0.02em; }
+  .toml__rows { margin-top: 18px; display: grid; gap: 14px; }
+  .toml__row { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 4px 16px; align-items: baseline; }
+  .toml__row dt { font-size: var(--t-xs); color: var(--blue); }
+  .toml__row dd { margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; }
+  .chips li { padding: 3px 9px; border-radius: var(--r-chip); background: var(--raised); border: 1px solid var(--border); font-size: var(--t-s); color: var(--fg); line-height: 1.4; }
+  .toml__table--pas_encore .chips li { background: transparent; border-style: dashed; border-color: var(--border-strong); color: var(--text-2); }
+  .toml__prose { color: var(--fg); max-width: 34rem; }
+  .toml__table--pas_encore .toml__prose { color: var(--text-2); }
+  .toml__note { margin-top: 18px; font-size: var(--t-s); color: var(--text-2); max-width: 34rem; }
+  @media (max-width: 1023px) {
+    .toml__body { grid-template-columns: 1fr; }
+    .toml__table--en_entreprise { grid-row: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+    .toml__fill { display: none; }
+  }
+  @media (max-width: 599px) { .toml__row { grid-template-columns: 1fr; } }
+</style>

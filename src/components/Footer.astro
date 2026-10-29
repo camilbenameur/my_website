@@ -1,0 +1,51 @@
+---
+import { footer, routes, site, ui } from '../data/site';
+import { tr, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const year = 2026;
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="site-footer__exit mono" aria-hidden="true"><b>camil</b>@<i>lyon</i>:~$ exit</p>
+    <p class="site-footer__name">{site.name}</p>
+    <div class="site-footer__grid">
+      <nav aria-label={tr(footer.links, lang)}>
+        <ul class="site-footer__links">
+          <li><a class="link ext tap" href={site.links.linkedin} rel="me noopener" target="_blank">LinkedIn<span class="sr-only"> {tr(ui.newTab, lang)}</span></a></li>
+          <li><a class="link ext tap" href={site.links.github} rel="me noopener" target="_blank">GitHub<span class="sr-only"> {tr(ui.newTab, lang)}</span></a></li>
+          <li><a class="link tap go" href={tr(site.links.blog, lang)} rel="me">Blog</a></li>
+          <li><a class="link tap" href={routes.legal[lang]}>{tr(footer.legal, lang)}</a></li>
+        </ul>
+      </nav>
+      <div class="site-footer__keys mono">
+        <button class="keys-btn" type="button" data-keys-toggle aria-pressed="true">
+          <span>{tr(footer.keys, lang)}</span>
+          <span class="keys-btn__state" aria-hidden="true" data-on={tr(footer.keysOn, lang)} data-off={tr(footer.keysOff, lang)}></span>
+        </button>
+        <p class="muted" data-keys-hint>{tr(footer.keysHint, lang)}</p>
+      </div>
+      <p class="site-footer__colophon muted">{tr(footer.colophon, lang)} © {year} {site.name}.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { border-top: 1px solid var(--border); padding-block: clamp(3rem, 6vw, 5rem) 2.5rem; }
+  .site-footer__exit { font-size: var(--t-xs); color: var(--muted); }
+  .site-footer__exit b { color: var(--green); font-weight: 600; }
+  .site-footer__exit i { color: var(--blue); font-style: normal; }
+  .site-footer__name { margin-top: 12px; font-size: clamp(3rem, 1rem + 9vw, 10rem); font-weight: 750; letter-spacing: -0.055em; line-height: 0.9; margin-left: -0.06em; color: var(--fg); }
+  .site-footer__grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 24px var(--gutter); margin-top: 40px; align-items: start; font-size: var(--t-s); }
+  .site-footer__links { list-style: none; padding: 0; display: grid; gap: 4px; }
+  .site-footer__keys { font-size: 13px; display: grid; gap: 10px; justify-items: start; }
+  .keys-btn { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 4px 6px 4px 12px; border: 1px solid var(--border-strong); border-radius: var(--r-chip); background: transparent; color: var(--fg); font: inherit; cursor: pointer; transition: background-color var(--d-fast) var(--e-out), color var(--d-fast) var(--e-out); }
+  .keys-btn:hover { background: var(--fg); color: var(--bg); }
+  .keys-btn__state { padding: 2px 8px; border-radius: 4px; background: var(--raised); color: var(--green); }
+  .keys-btn__state::before { content: attr(data-on); }
+  .keys-btn[aria-pressed='false'] .keys-btn__state { color: var(--muted); }
+  .keys-btn[aria-pressed='false'] .keys-btn__state::before { content: attr(data-off); }
+  :global(.keys-off) [data-keys-hint] { text-decoration: line-through; }
+  .site-footer__colophon { font-size: var(--t-xs); line-height: 1.6; }
+  @media (max-width: 767px) { .site-footer__grid { grid-template-columns: 1fr; } }
+</style>

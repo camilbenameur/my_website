@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { legal } from '../data/site';
+import { tr, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<Base title={tr(legal.title, lang)} description={tr(legal.description, lang)}>
+  <article class="legal wrap">
+    <p class="cmd" aria-hidden="true"><span class="cmd__prompt"><b>camil</b>@<i>lyon</i>:~$</span> <span class="cmd__text">man {lang === 'fr' ? 'mentions' : 'legal'}</span></p>
+    <h1 class="h2" data-enter>{tr(legal.title, lang)}</h1>
+    <div class="legal__body">
+      {legal.blocks.map((b) => (
+        <section data-enter>
+          <h2>{tr(b.h, lang)}</h2>
+          <p>{tr(b.p, lang)}</p>
+        </section>
+      ))}
+    </div>
+  </article>
+</Base>
+
+<style>
+  .legal { padding-top: clamp(2.5rem, 6vw, 5rem); }
+  .legal__body { margin-top: clamp(2rem, 4vw, 3rem); display: grid; gap: 32px; max-width: 46rem; }
+  .legal h2 { font-size: var(--t-m); font-weight: 650; letter-spacing: -0.02em; }
+  .legal p { margin-top: 10px; color: var(--text-2); }
+</style>

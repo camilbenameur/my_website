@@ -1,0 +1,127 @@
+---
+import { nav, routes, ui } from '../data/site';
+import { altPath, anchor, tr, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const home = routes.home[lang];
+const onHome = Astro.url.pathname === home;
+const href = (s: (typeof nav)[number]) => `${onHome ? '' : home}#${anchor(s, lang)}`;
+const other = altPath(Astro.url.pathname);
+---
+<header class="site-header">
+  <div class="wrap site-header__bar">
+    <a class="brand mono" translate="no" href={home}>
+      <span aria-hidden="true"><b>camil</b>@<i>lyon</i>:~$</span><span class="brand__caret" aria-hidden="true"></span><span class="sr-only">{lang === 'fr' ? 'Camil Benameur, accueil' : 'Camil Benameur, home'}</span>
+    </a>
+    <nav class="nav" aria-label={tr(ui.navLabel, lang)}>
+      <ul>
+        {nav.map((s) => <li><a class="nav__a" href={href(s)} data-nav={anchor(s, lang)}>{tr(s.label, lang)}</a></li>)}
+      </ul>
+    </nav>
+    <div class="site-header__tools">
+      <a class="tool mono" href={other} hreflang={lang === 'fr' ? 'en' : 'fr'} lang={lang === 'fr' ? 'en' : 'fr'}>{tr(ui.langSwitchShort, lang)}<span class="sr-only"> {tr(ui.langSwitchLabel, lang)}</span></a>
+      <button class="tool tool--term mono" type="button" data-shell-open aria-haspopup="dialog" title={tr(ui.terminalHint, lang)}>
+        <span class="tool__key" aria-hidden="true">/</span> <span class="tool__label">{tr(ui.terminal, lang)}</span>
+      </button>
+      <button class="tool tool--menu mono" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu">{tr(ui.menu, lang)}</button>
+    </div>
+  </div>
+  <dialog class="menu" id="menu" aria-label={tr(ui.navLabel, lang)} data-menu>
+    <div class="menu__top wrap">
+      <span class="brand mono" aria-hidden="true"><b>camil</b>@<i>lyon</i>:~$ ls</span>
+      <button class="tool mono" type="button" data-menu-close>{tr(ui.close, lang)}</button>
+    </div>
+    <nav class="menu__nav wrap" aria-label={tr(ui.navLabel, lang)}>
+      <ul>
+        {nav.map((s, i) => <li><a href={href(s)}><span class="mono" aria-hidden="true">0{i + 1}</span>{tr(s.label, lang)}</a></li>)}
+      </ul>
+      <p class="menu__lang"><a class="link" href={other} hreflang={lang === 'fr' ? 'en' : 'fr'} lang={lang === 'fr' ? 'en' : 'fr'}>{tr(ui.langSwitch, lang)}</a></p>
+    </nav>
+  </dialog>
+</header>
+
+<style>
+  .site-header { position: sticky; top: 0; z-index: var(--z-header); background: rgb(11 13 17 / 0.95); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); border-bottom: 1px solid var(--border); }
+  .site-header__bar { display: flex; align-items: center; gap: 24px; min-height: 60px; }
+  .brand { display: inline-flex; align-items: center; gap: 2px; font-size: 14px; color: var(--text-2); text-decoration: none; padding: 6px 0; }
+  .brand b { color: var(--green); font-weight: 600; }
+  .brand i { color: var(--blue); font-style: normal; }
+  .brand__caret { width: 0.6em; height: 1.15em; background: var(--green); margin-left: 3px; }
+  .brand__caret { transition: transform var(--d-ui) steps(3); }
+  .brand:hover .brand__caret { transform: translateX(1.2em); }
+  .brand:hover b { color: var(--fg); }
+  .motion .brand__caret { animation: blink 1.1s steps(1) infinite; }
+  :global(.idle-paused) .brand__caret { animation: none; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .nav { margin-left: auto; }
+  .nav ul { display: flex; gap: 4px; list-style: none; padding: 0; }
+  .nav__a { position: relative; display: inline-block; padding: 8px 10px; font-size: 15px; font-weight: 520; color: var(--fg); text-decoration: none; border-radius: 6px; transition: color var(--d-fast) var(--e-out), background-color var(--d-fast) var(--e-out); }
+  /* the underline is typed: it grows in character steps */
+  .nav__a::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: 3px; height: 2px; background: var(--green); transform: scaleX(0); transform-origin: left; transition: transform 0.22s steps(6); }
+  /* hover: inverse video, like a selected line in a terminal; the typed underline stays, in the ground color */
+  .nav__a:hover { background: var(--fg); color: var(--bg); }
+  .nav__a:hover::after { background: var(--bg); }
+  .nav__a:hover::after, .nav__a[aria-current]::after { transform: scaleX(1); }
+  .nav__a[aria-current] { color: var(--green); }
+  .site-header__tools { display: flex; align-items: center; gap: 8px; }
+  .tool { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--border-strong); border-radius: var(--r-chip); background: transparent; color: var(--fg); font-size: 13px; text-decoration: none; cursor: pointer; transition: background-color var(--d-fast) var(--e-out), border-color var(--d-fast) var(--e-out), color var(--d-fast) var(--e-out); }
+  .tool:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .tool__key { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; background: var(--raised); color: var(--green); transition: transform var(--d-fast) var(--e-out); }
+  .tool:hover .tool__key { transform: translateX(-2px); background: var(--bg); }
+  .tool--menu { display: none; }
+  @media (max-width: 1023px) {
+    .nav { display: none; }
+    .tool__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .site-header__tools { margin-left: auto; }
+    .tool--menu { display: inline-flex; }
+  }
+  .menu { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0; border: 0; background: var(--bg); color: var(--fg); overflow: auto; overscroll-behavior: contain; }
+  .menu::backdrop { background: rgb(0 0 0 / 0.6); }
+  .menu__top { display: flex; justify-content: space-between; align-items: center; min-height: 60px; border-bottom: 1px solid var(--border); }
+  .menu__nav ul { list-style: none; padding: 24px 0 0; }
+  .menu__nav a { display: flex; align-items: baseline; gap: 16px; padding: 12px 0; font-size: clamp(2rem, 9vw, 3rem); font-weight: 700; letter-spacing: -0.04em; text-decoration: none; border-bottom: 1px solid var(--border); }
+  .menu__nav a span { font-size: 13px; color: var(--muted); letter-spacing: 0; font-weight: 400; }
+  .menu__nav a:hover, .menu__nav a:focus-visible { color: var(--green); }
+  .menu__lang { margin-top: 28px; font-size: 1.1rem; }
+</style>
+
+<script>
+  import { onPage } from '../engine';
+  // Mobile menu in a modal <dialog>: Escape closes and the focus stays inside while it is open.
+  onPage(() => {
+    const dlg = document.querySelector<HTMLDialogElement>('[data-menu]');
+    const open = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+    const close = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+    if (!dlg || !open || !close) return;
+    const show = () => { dlg.showModal(); open.setAttribute('aria-expanded', 'true'); };
+    const hide = () => dlg.close();
+    // A link to a section closes the menu and focuses that section before this runs: leave it there.
+    const onClose = () => {
+      open.setAttribute('aria-expanded', 'false');
+      const at = document.activeElement;
+      if (!at || at === document.body || dlg.contains(at)) open.focus();
+    };
+    const onLink = (e: Event) => { if ((e.target as HTMLElement).closest('a')) dlg.close(); };
+    open.setAttribute('aria-expanded', 'false');
+    open.addEventListener('click', show);
+    close.addEventListener('click', hide);
+    dlg.addEventListener('close', onClose);
+    dlg.addEventListener('click', onLink);
+    return () => { open.removeEventListener('click', show); close.removeEventListener('click', hide); dlg.removeEventListener('close', onClose); dlg.removeEventListener('click', onLink); };
+  });
+
+  // On the home page, the nav marks the section in view (aria-current="location").
+  onPage(() => {
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav]')];
+    const targets = links.map((a) => document.getElementById(a.dataset.nav!)).filter(Boolean) as HTMLElement[];
+    if (!targets.length) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        links.forEach((a) => (a.dataset.nav === e.target.id ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+      }
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    targets.forEach((t) => io.observe(t));
+    return () => io.disconnect();
+  });
+</script>

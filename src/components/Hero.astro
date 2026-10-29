@@ -1,0 +1,79 @@
+---
+import { hero, nav } from '../data/site';
+import { anchor, tr, type Lang } from '../i18n';
+import Stream from './Stream.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const [l1, l2] = hero.title[lang];
+// First and last name on their own lines: the title always has three, whatever font is loaded, so the
+// web font's arrival can't add a line and push the page down (CLS).
+const [first, ...last] = l1.split(' ');
+const lead = tr(hero.lead, lang);
+const mark = tr(hero.mark, lang);
+const [before, after] = lead.split(mark);
+const work = `#${anchor(nav[0], lang)}`;
+const contact = `#${anchor(nav[4], lang)}`;
+---
+<section class="hero wrap" aria-labelledby="hero-title">
+  <div class="hero__text">
+    <p class="hero__prompt mono" aria-hidden="true"><b>camil</b>@<i>lyon</i>:~$ <span class="hero__cmd" style={`--n:${hero.command.length}`}>{hero.command}</span></p>
+    <h1 class="hero__title" id="hero-title">
+      <span class="hero__line"><span style="--i:0">{`${first} `}</span></span>
+      <span class="hero__line"><span style="--i:1">{`${last.join(' ')} `}</span></span>
+      <span class="hero__line hero__line--dim"><span style="--i:2">{l2}</span></span>
+    </h1>
+    <p class="hero__lead">{before}<span class="hero__mark" data-stream-mark>{mark}</span>{after}</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" href={work}>{tr(hero.primary, lang)} <kbd aria-hidden="true">↓</kbd></a>
+      <a class="btn" href={contact}>{tr(hero.secondary, lang)} <kbd class="key-hint" aria-hidden="true">c</kbd></a>
+    </div>
+    <p class="hero__status mono"><span class="hero__dot" aria-hidden="true"></span>{tr(hero.status, lang)}</p>
+  </div>
+  <div class="hero__stream">
+    <Stream lang={lang} />
+  </div>
+</section>
+
+<style>
+  .hero { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); align-items: center; min-height: calc(100svh - 61px); padding-block: clamp(2rem, 5svh, 4rem); }
+  .hero__text { grid-column: 1 / span 6; }
+  .hero__stream { grid-column: 7 / -1; }
+  .hero__prompt { font-size: 14px; color: var(--muted); margin-bottom: clamp(14px, 2.6svh, 24px); }
+  .hero__prompt b { color: var(--green); font-weight: 600; }
+  .hero__prompt i { color: var(--blue); font-style: normal; }
+  .hero__cmd { color: var(--fg); display: inline-block; }
+  .hero__title { font-size: var(--t-hero); font-weight: 730; line-height: 0.94; letter-spacing: -0.05em; margin-left: -0.055em; text-wrap: balance; }
+  .hero__line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+  .hero__line > span { display: inline-block; }
+  .hero__line--dim { color: var(--muted); }
+  .hero__lead { margin-top: clamp(16px, 3svh, 28px); max-width: 35rem; font-size: clamp(1.05rem, 0.92rem + 0.42vw, 1.3rem); line-height: 1.5; color: var(--text-2); }
+  .hero__mark { color: var(--fg); background: linear-gradient(var(--green), var(--green)) 0 100% / 100% 1.5px no-repeat; transition: background-size 0.4s var(--e-out); }
+  .js.motion .hero__mark { background-size: 0 1.5px; }
+  .js.motion .hero__mark.is-marked { background-size: 100% 1.5px; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(20px, 3.6svh, 34px); }
+  .hero__status { display: flex; align-items: center; gap: 10px; margin-top: clamp(16px, 3svh, 26px); font-size: 13px; color: var(--muted); }
+  .hero__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgb(123 224 164 / 0.15); }
+
+  /* Entrance without waiting for JS (the title is the LCP): CSS keyframes, staged before first paint by
+     the .motion flag. The command is typed, then the lines rise. 1.2 s at most for the whole hero. */
+  .motion .hero__cmd { clip-path: inset(0 100% 0 0); animation: type 0.3s steps(var(--n)) 0.08s forwards; }
+  .motion .hero__line > span { transform: translateY(105%); animation: rise 0.7s var(--e-out) forwards; animation-delay: calc(0.28s + var(--i) * 0.08s); }
+  /* The lead is the LCP and the first thing read: it does not move. If the web font arrived while it slid
+     in, Chrome would count the slide as a layout shift. */
+  .motion .hero__actions, .motion .hero__status { animation: lift 0.6s var(--e-out) backwards; }
+  .motion .hero__actions { animation-delay: 0.56s; }
+  .motion .hero__status { animation-delay: 0.64s; }
+  @keyframes type { to { clip-path: inset(0 0 0 0); } }
+  @keyframes rise { to { transform: none; } }
+  /* transform only: the lead is the LCP on phones, it must paint at once */
+  @keyframes lift { from { transform: translateY(12px); } }
+
+  @media (max-width: 1023px) {
+    .hero { min-height: 0; padding-block: 28px 0; align-items: start; }
+    .hero__text, .hero__stream { grid-column: 1 / -1; }
+    .hero__stream { margin-top: 36px; }
+  }
+  @media (max-width: 599px) {
+    .hero__actions .btn { flex: 1 1 100%; }
+  }
+</style>
