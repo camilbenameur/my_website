@@ -98,6 +98,8 @@ export async function enter({ transition = true, scrollTop = true } = {}) {
   if (scrollTop && !(location.hash && goToHash(location.hash, true))) resetScroll();
   initPage();
   if (transition) await playEnter();
+  // the page's own scripts may have moved the target since (pins, revealed sections): land again
+  if (location.hash) goToHash(location.hash, true);
   startScroll();
   intro?.play();
 }
