@@ -22,9 +22,11 @@ Portfolio de Camil Benameur, ingénieur IA, orientation Forward Deployed Enginee
 Idée :        Le site se lit comme le terminal d'un ingénieur IA. Au premier écran, mon profil arrive
               en flux comme la réponse d'un LLM, lu champ par champ, coupé, puis réparé.
 Métaphore :   Le terminal et la sortie en flux d'un modèle de langage.
-Signature :   Le JSON du profil qui arrive par morceaux : chaque champ complet s'allume d'une coche,
-              la réponse est coupée sur un projet prévu, puis réparée. C'est exactement ce que fait
-              go-llm-stream, la bibliothèque publique de Camil.
+Signature :   Le JSON du profil qui arrive par morceaux : chaque champ complet s'allume d'une coche.
+              Ses quatre dernières lignes (langages, IA, outils, prochain) sont coupées en plein mot,
+              puis réparées, chacune avec ses propres caractères (`"]`, `" }`, `" }]`, `"]}`).
+              Le principe vient de go-llm-stream, la bibliothèque publique de Camil ; l'affichage
+              prend ses libertés (Camil, 29/10/2026 : « on peut juste utiliser l'excuse »).
 Émotion :     Le calme d'un terminal qui répond, avec un clin d'œil de bidouilleur.
 Verbe :       Taper, puis exécuter.
 Capture :     Le titre en clair à gauche, le terminal du flux réparé à droite.
@@ -34,7 +36,7 @@ Pourquoi ce concept : Camil a rejeté la trame Jacquard le 29/10/2026, parce qu'
 
 Le concept se retrouve jusqu'au bout du site :
 - chaque section est une commande et sa sortie (`ls -l realisations/`, `git log --parcours`, `cat competences.toml`, `cat ROADMAP.md`, `ls -t blog/`, `./contact.sh`) ;
-- un mini-terminal s'ouvre avec la touche `/` ;
+- un vrai petit shell (camsh, `src/terminal/`) s'ouvre avec la touche `/` : `ls`, `cd`, `cat`, `grep`, `tree`, `find`, `jq`, `git log`, pipes, `&&`, variables, jokers, complétion par Tab, historique. Ses fichiers, en lecture seule, sont le contenu du site (`fs.ts` les fabrique à partir de `src/data`). `heal` et `stream --heal` y réparent pour de vrai du JSON coupé, et Ctrl+C coupe le flux en cours. Le shell n'est chargé qu'à la première ouverture (environ 57 ko non compressés), pas avec la page ;
 - la page 404 répond `bash: cd: … No such file or directory` ;
 - le pied de page se ferme sur `exit`.
 
@@ -77,7 +79,7 @@ Le concept se retrouve jusqu'au bout du site :
   - `cat ROADMAP.md` : les cases `- [ ]` s'impriment l'une après l'autre, un curseur attend sur la ligne suivante (cinq clignotements, puis fixe).
   - `ls -t blog/` : le filet de la ligne se trace, la date est tapée, le titre suit.
   - `./contact.sh` : les invites du formulaire montent l'une après l'autre.
-- **Repos.** Le dernier champ du flux essaie sans cesse de finir : sa valeur coupée s'efface, hésite, se retape lentement, puis le JSON est refermé, avec 1,4 s de pause entre deux essais. La boucle s'arrête hors écran, sur un onglet caché et avec le bouton « pause » (WCAG 2.2.2). Le curseur clignote, et le bouton « relancer » rejoue tout le flux. Les pages intérieures (projets, mentions, 404) restent immobiles au repos, par choix : ce sont des pages de lecture, et leurs survols et la transition portent le mouvement.
+- **Repos.** Les quatre dernières lignes du flux (les « slots ») continuent de s'écrire, chacune à son rythme, si bien que plusieurs s'écrivent en même temps : une ligne efface sa valeur, en écrit une autre (des compétences vraies, tirées des deux premiers tableaux de `skills.ts`, et des projets prévus pour la dernière), s'arrête en plein mot ou juste après, puis se referme ; chaque caractère ajouté s'allume avec le crochet ou le guillemet qu'il ferme. Chaque ligne réserve la place de sa plus longue valeur (CLS 0 de 320 à 1440 px). La boucle s'arrête hors écran, sur un onglet caché et avec le bouton « pause » (WCAG 2.2.2). Le curseur clignote, et le bouton « relancer » rejoue tout le flux. Les pages intérieures (projets, mentions, 404) restent immobiles au repos, par choix : ce sont des pages de lecture, et leurs survols et la transition portent le mouvement.
 
 ## Décisions (skill `top-notch` §2)
 
