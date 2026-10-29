@@ -1,0 +1,44 @@
+---
+// The home page, in either language. JSON-LD `Person` from the same data as the page.
+import Base from '../layouts/Base.astro';
+import Hero from './Hero.astro';
+import Work from './Work.astro';
+import Background from './Background.astro';
+import Skills from './Skills.astro';
+import Planned from './Planned.astro';
+import Writing from './Writing.astro';
+import Contact from './Contact.astro';
+import { routes, site } from '../data/site';
+import { tr, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${site.origin}/#person`,
+  name: site.name,
+  givenName: 'Camil',
+  familyName: 'Benameur',
+  jobTitle: tr(site.jobTitle, lang),
+  description: tr(site.description, lang),
+  url: new URL(routes.home[lang], site.origin).href,
+  image: `${site.origin}/og.png`,
+  address: { '@type': 'PostalAddress', addressLocality: 'Lyon', addressCountry: 'FR' },
+  alumniOf: [
+    { '@type': 'CollegeOrUniversity', name: 'Polytech Dijon' },
+    { '@type': 'CollegeOrUniversity', name: 'Université de Bourgogne' },
+  ],
+  knowsLanguage: ['fr', 'en'],
+  knowsAbout: ['LLM agents', 'Retrieval-augmented generation', 'Model Context Protocol', 'Go', 'Python', 'TypeScript', 'React', 'Docker', 'GitHub Actions', 'CI/CD'],
+  sameAs: [site.links.linkedin, site.links.github, 'https://blog.camilbenameur.com/'],
+};
+---
+<Base jsonLd={jsonLd}>
+  <Hero lang={lang} />
+  <Work lang={lang} />
+  <Background lang={lang} />
+  <Skills lang={lang} />
+  <Planned lang={lang} />
+  <Writing lang={lang} />
+  <Contact lang={lang} />
+</Base>

@@ -1,0 +1,11 @@
+---
+// A section opens with its command (decoration, typed when it scrolls into view), then the heading.
+import type { Lang } from '../i18n';
+interface Props { command: string; title: string; intro?: string; id: string; lang: Lang }
+const { command, title, intro, id } = Astro.props;
+---
+<header class="shead">
+  <p class="cmd" data-type aria-hidden="true" translate="no"><span class="cmd__prompt"><b>camil</b>@<i>lyon</i>:~$</span> <span class="cmd__text">{command}</span></p>
+  <h2 class="h2" id={`${id}-title`} data-split="lines">{title}</h2>
+  {intro && <p class="intro" data-reveal="fade">{intro}</p>}
+</header>

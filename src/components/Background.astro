@@ -1,0 +1,87 @@
+---
+// `git log --parcours`: one commit per role, newest first. The SoftDPAC Remote Installer runs on its own
+// branch from the internship to the fixed-term contract (the same product), merged with its tag.
+// The graph is decoration (aria-hidden); the list carries the content. Dates are never widened.
+import { sections } from '../data/site';
+import { commits, extras, head } from '../data/background';
+import { anchor, tr, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const id = anchor({ id: 'parcours', en: 'background' }, lang);
+const s = sections.background;
+---
+<section class="section wrap" id={id} aria-labelledby={`${id}-title`}>
+  <div class="bg grid">
+    <div class="bg__head">
+      <SectionHead id={id} lang={lang} command={tr(s.command, lang)} title={tr(s.title, lang)} intro={tr(s.intro, lang)} />
+      <dl class="bg__extras" data-reveal="fade">
+        <div><dt>{tr(extras.languages.label, lang)}</dt><dd>{tr(extras.languages.text, lang)}</dd></div>
+        <div><dt>{tr(extras.certs.label, lang)}</dt><dd>{tr(extras.certs.text, lang)}</dd></div>
+      </dl>
+    </div>
+    <div class="log">
+    <span class="log__progress" aria-hidden="true" data-log-progress></span>
+    <ol class="log__list">
+      <li class="log__head mono" data-print="head">
+        <span class="log__graph" aria-hidden="true"><i class="dot dot--head"></i></span>
+        <span><span class="log__ref">HEAD</span> <span class="muted">{tr(head, lang)}</span></span>
+      </li>
+      {commits.map((c, i) => {
+        const next = commits[i + 1];
+        return (
+          <li class:list={['log__c', { 'log__c--sri': c.branch === 'sri', 'log__c--sri-end': c.branch === 'sri' && next?.branch !== 'sri', 'log__c--sri-start': c.branch === 'sri' && commits[i - 1]?.branch !== 'sri' }]} data-print="commit">
+            <span class="log__graph" aria-hidden="true"><i class="dot"></i>{c.branch === 'sri' && <i class="lane"></i>}</span>
+            <div class="log__body">
+              <p class="log__meta mono"><span class="log__hash" aria-hidden="true">{c.hash}</span> <time datetime={c.iso}>{tr(c.when, lang)}</time>{c.tag && <span class="log__tag">{tr(c.tag, lang)}</span>}</p>
+              <h3 class="log__role">{tr(c.role, lang)}</h3>
+              <p class="log__org">{tr(c.org, lang)}</p>
+              <p class="log__text">{tr(c.text, lang)}</p>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bg { align-items: start; }
+  .bg__head { grid-column: 1 / span 5; position: sticky; top: 100px; }
+  .log { grid-column: 7 / -1; position: relative; }
+  .log__list { list-style: none; padding: 0; }
+  /* the scrubbed line: the log prints in green as you read (motion/sections.ts) */
+  .log__progress { display: none; }
+  :global(.js.motion) .log__progress { display: block; position: absolute; z-index: 1; left: 10px; top: 14px; bottom: 0; width: 2px; background: var(--green); transform-origin: 50% 0; transform: scaleY(0); pointer-events: none; }
+  .bg__extras { margin-top: 32px; display: grid; gap: 14px; font-size: var(--t-s); }
+  .bg__extras dt { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--green); }
+  .bg__extras dd { margin: 2px 0 0; color: var(--text-2); }
+  .log li { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); }
+  .log__graph { position: relative; }
+  /* main line, then the SRI branch drawn one lane to the right */
+  .log__graph::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border-strong); }
+  .log li:last-child .log__graph::before { bottom: auto; height: 22px; }
+  .log__head .log__graph::before { top: 14px; }
+  .dot { position: absolute; left: 5px; top: 18px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); }
+  .dot--head { top: 6px; border-color: var(--green); background: var(--green); box-shadow: 0 0 0 4px rgb(123 224 164 / 0.15); }
+  .log__c--sri .dot { left: 25px; border-color: var(--blue); }
+  .lane { position: absolute; left: 30px; top: 0; bottom: 0; width: 2px; background: var(--blue); opacity: 0.7; }
+  .log__c--sri-start .lane { top: 24px; }
+  .log__c--sri-end .lane { bottom: auto; height: 24px; }
+  .log__head { padding-bottom: 22px; font-size: var(--t-xs); }
+  .log__ref { padding: 2px 6px; border-radius: 4px; background: rgb(123 224 164 / 0.14); color: var(--green); }
+  .log__body { padding: 12px 0 34px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+  .log__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: var(--t-xs); color: var(--muted); }
+  .log__hash { color: var(--yellow); }
+  .log__meta time { color: var(--fg); }
+  .log__tag { padding: 1px 7px; border: 1px solid var(--blue); border-radius: 4px; color: var(--blue); }
+  .log__role { margin-top: 10px; font-size: var(--t-m); font-weight: 650; letter-spacing: -0.02em; }
+  .log__org { color: var(--text-2); margin-top: 2px; }
+  .log__text { margin-top: 10px; color: var(--muted); max-width: 40rem; }
+  @media (max-width: 1023px) {
+    .bg__head, .log { grid-column: 1 / -1; }
+    .bg__head { position: static; }
+    .log { margin-top: 40px; }
+  }
+</style>

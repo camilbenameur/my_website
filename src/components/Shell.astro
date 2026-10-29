@@ -1,0 +1,188 @@
+---
+// The mini terminal, opened with « / » or the header button. A modal <dialog>: Escape closes it and
+// the focus stays inside. Every answer is true and short; navigation commands go to real anchors.
+import { nav, routes, shell, site } from '../data/site';
+import { projects } from '../data/projects';
+import { anchor, tr, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const home = routes.home[lang];
+const sections = Object.fromEntries(nav.map((s) => [lang === 'fr' ? s.id : s.en, `${home}#${anchor(s, lang)}`]));
+const data = {
+  lang,
+  sections,
+  links: { github: site.links.github, linkedin: site.links.linkedin, blog: tr(site.links.blog, lang) },
+  other: lang === 'fr' ? routes.home.en : routes.home.fr,
+  projects: projects.map((p) => ({ name: tr(p.name, lang), href: p.page ? `${routes.project[lang]}${p.slug}/` : undefined })),
+  t: {
+    unknown: tr(shell.unknown, lang), sudo: tr(shell.sudo, lang), cv: tr(shell.cv, lang), whoami: tr(shell.whoami, lang),
+    keysOff: tr(shell.keysOff, lang), keysOn: tr(shell.keysOn, lang), help: shell.help[lang],
+  },
+};
+---
+<dialog class="shell" id="shell" aria-labelledby="shell-title" data-shell>
+  <div class="win shell__win">
+    <div class="win__bar">
+      <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <h2 class="win__title" id="shell-title">{tr(shell.title, lang)}</h2>
+      <button class="shell__close mono" type="button" data-shell-close>{lang === 'fr' ? 'Fermer' : 'Close'} <kbd>Esc</kbd></button>
+    </div>
+    <div class="shell__body mono" translate="no">
+      <div class="shell__log" data-shell-log role="log" aria-live="polite">
+        <p class="muted">{tr(shell.intro, lang)}</p>
+      </div>
+      <form class="shell__line" data-shell-form>
+        <label class="shell__prompt" for="shell-input"><b>camil</b>@<i>lyon</i>:~$<span class="sr-only"> {tr(shell.label, lang)}</span></label>
+        <input id="shell-input" name="cmd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" data-shell-input />
+      </form>
+    </div>
+  </div>
+</dialog>
+<script type="application/json" id="shell-data" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />
+
+<style>
+  .shell { width: min(720px, calc(100% - 2 * var(--gutter))); max-width: none; max-height: min(560px, 80svh); padding: 0; border: 0; background: transparent; color: var(--fg); overflow: visible; }
+  .shell::backdrop { background: rgb(5 6 8 / 0.7); backdrop-filter: blur(2px); }
+  .shell[open] { animation: shell-in 0.24s var(--e-out); }
+  @keyframes shell-in { from { opacity: 0; transform: translateY(8px) scale(0.99); } }
+  .shell__win { display: flex; flex-direction: column; max-height: min(560px, 80svh); }
+  .shell .win__title { font-size: 12.5px; font-weight: 400; letter-spacing: 0; font-family: var(--f-mono); }
+  .shell__close { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; min-height: 32px; padding: 4px 8px; border: 1px solid var(--border-strong); border-radius: var(--r-chip); background: transparent; color: var(--fg); font-size: 12px; cursor: pointer; }
+  .shell__close:hover { background: var(--fg); color: var(--bg); }
+  .shell__close kbd { font-size: 11px; color: var(--muted); }
+  .shell__body { padding: 16px 18px 18px; font-size: 14px; line-height: 1.6; overflow: auto; overscroll-behavior: contain; }
+  .shell__log { display: grid; gap: 4px; }
+  .shell__log :global(.echo b) { color: var(--green); font-weight: 600; }
+  .shell__log :global(.echo i) { color: var(--blue); font-style: normal; }
+  .shell__log :global(.err) { color: var(--red); }
+  .shell__log :global(dl) { display: grid; grid-template-columns: max-content 1fr; gap: 2px 18px; }
+  .shell__log :global(dt) { color: var(--green); }
+  .shell__log :global(dd) { margin: 0; color: var(--text-2); }
+  .shell__log :global(a) { color: var(--blue); }
+  .shell__line { display: flex; gap: 0.6ch; align-items: baseline; margin-top: 8px; }
+  .shell__prompt { flex: none; color: var(--text-2); }
+  .shell__prompt b { color: var(--green); font-weight: 600; }
+  .shell__prompt i { color: var(--blue); font-style: normal; }
+  .shell__line input { flex: 1; min-width: 0; min-height: 28px; border: 0; background: transparent; color: var(--fg); caret-color: var(--green); font: inherit; outline: none; }
+  .shell__line:focus-within { box-shadow: 0 2px 0 var(--green); }
+  @media (max-width: 600px) { .shell__log :global(dl) { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import { navigate } from 'astro:transitions/client';
+  import { onPage } from '../engine';
+  import { goToHash } from '../engine/anchors';
+
+  type Data = {
+    lang: 'fr' | 'en';
+    sections: Record<string, string>;
+    links: Record<string, string>;
+    other: string;
+    projects: { name: string; href?: string }[];
+    t: { unknown: string; sudo: string; cv: string; whoami: string; keysOff: string; keysOn: string; help: string[][] };
+  };
+
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const keysOn = () => !document.documentElement.classList.contains('keys-off');
+
+  function setKeys(on: boolean) {
+    document.documentElement.classList.toggle('keys-off', !on);
+    try { if (on) localStorage.removeItem('keys'); else localStorage.setItem('keys', 'off'); } catch { /* private mode: the choice lasts this page only */ }
+    document.querySelectorAll<HTMLButtonElement>('[data-keys-toggle]').forEach((b) => b.setAttribute('aria-pressed', String(on)));
+  }
+
+  onPage(() => {
+    const dlg = document.querySelector<HTMLDialogElement>('[data-shell]');
+    const raw = document.getElementById('shell-data')?.textContent;
+    if (!dlg || !raw) return;
+    const data = JSON.parse(raw) as Data;
+    const log = dlg.querySelector<HTMLElement>('[data-shell-log]')!;
+    const form = dlg.querySelector<HTMLFormElement>('[data-shell-form]')!;
+    const input = dlg.querySelector<HTMLInputElement>('[data-shell-input]')!;
+    const openers = [...document.querySelectorAll<HTMLButtonElement>('[data-shell-open]')];
+    const closer = dlg.querySelector<HTMLButtonElement>('[data-shell-close]')!;
+    const past: string[] = []; // commands typed, for the arrow keys (not window.history)
+    let cursor = 0;
+    let opener: HTMLElement | null = null;
+
+    const print = (html: string) => { const p = document.createElement('div'); p.innerHTML = html; log.appendChild(p); p.scrollIntoView({ block: 'nearest' }); };
+    // Same page: smooth scroll to the anchor. Another page of this site: the router. Elsewhere: leave.
+    const go = (href: string) => {
+      dlg.close();
+      const url = new URL(href, location.href);
+      if (url.origin !== location.origin) return void location.assign(href);
+      if (url.pathname === location.pathname && url.hash) { history.replaceState(history.state, '', url.hash); return void goToHash(url.hash); }
+      navigate(href);
+    };
+
+    const run = (line: string) => {
+      const cmd = line.trim().toLowerCase().replace(/\s+/g, ' ');
+      print(`<p class="echo"><b>camil</b>@<i>lyon</i>:~$ ${esc(line)}</p>`);
+      if (!cmd) return;
+      const [head, arg] = cmd.split(' ');
+      if (data.sections[head]) return go(data.sections[head]);
+      switch (head) {
+        case 'help': case 'aide': case 'ls':
+          return print(`<dl>${data.t.help.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`);
+        case 'projets': case 'projects':
+          return print(`<ul>${data.projects.map((p) => `<li>${p.href ? `<a href="${p.href}">${esc(p.name)}</a>` : esc(p.name)}</li>`).join('')}</ul>`);
+        case 'whoami': return print(`<p>${esc(data.t.whoami)}</p>`);
+        case 'cv': case 'resume': return print(`<p>${esc(data.t.cv)}</p>`);
+        case 'github': case 'linkedin': case 'blog': return go(data.links[head]);
+        case 'en': case 'fr': return go(data.other);
+        case 'sudo': return print(`<p class="err">${esc(data.t.sudo)}</p>`);
+        case 'clear': log.replaceChildren(); return;
+        case 'exit': case 'quit': case 'q': return dlg.close();
+        case 'raccourcis': case 'shortcuts':
+          if (arg === 'off' || arg === 'on') { setKeys(arg === 'on'); return print(`<p>${esc(arg === 'on' ? data.t.keysOn : data.t.keysOff)}</p>`); }
+          return print(`<p>${esc(head)} on | off</p>`);
+        default: return print(`<p class="err">${esc(head)}: ${esc(data.t.unknown)}</p>`);
+      }
+    };
+
+    const open = (from?: HTMLElement | null) => { if (dlg.open) return; opener = from ?? (document.activeElement as HTMLElement); dlg.showModal(); input.focus(); };
+    const onSubmit = (e: SubmitEvent) => { e.preventDefault(); const v = input.value; if (v.trim()) { past.push(v); cursor = past.length; } input.value = ''; run(v); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp' && past.length) { e.preventDefault(); cursor = Math.max(0, cursor - 1); input.value = past[cursor]; }
+      if (e.key === 'ArrowDown' && past.length) { e.preventDefault(); cursor = Math.min(past.length, cursor + 1); input.value = past[cursor] ?? ''; }
+    };
+    const onClose = () => {
+      const at = document.activeElement;
+      if (!at || at === document.body || dlg.contains(at)) opener?.focus?.({ preventScroll: true });
+    };
+    const onOpenClick = (e: Event) => open(e.currentTarget as HTMLElement);
+
+    // Character-key shortcuts: never in a field, never with a modifier or on repeat, and they can be
+    // turned off (footer button or `raccourcis off`), as WCAG 2.1.4 asks.
+    const onDocKey = (e: KeyboardEvent) => {
+      if (!keysOn() || e.repeat || e.ctrlKey || e.metaKey || e.altKey || dlg.open) return;
+      const t = e.target as HTMLElement;
+      if (t.closest('input, textarea, select, [contenteditable], dialog')) return;
+      if (e.key === '/') { e.preventDefault(); open(); }
+      else if (e.key === 'g') location.assign(data.links.github);
+      else if (e.key === 'b') location.assign(data.links.blog);
+      else if (e.key === 'c') go(data.sections.contact);
+    };
+
+    const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-keys-toggle]')];
+    const onToggle = () => setKeys(!keysOn());
+    setKeys(keysOn());
+
+    openers.forEach((b) => b.addEventListener('click', onOpenClick));
+    toggles.forEach((b) => b.addEventListener('click', onToggle));
+    closer.addEventListener('click', () => dlg.close());
+    form.addEventListener('submit', onSubmit);
+    input.addEventListener('keydown', onKey);
+    dlg.addEventListener('close', onClose);
+    document.addEventListener('keydown', onDocKey);
+    return () => {
+      openers.forEach((b) => b.removeEventListener('click', onOpenClick));
+      toggles.forEach((b) => b.removeEventListener('click', onToggle));
+      form.removeEventListener('submit', onSubmit);
+      input.removeEventListener('keydown', onKey);
+      dlg.removeEventListener('close', onClose);
+      document.removeEventListener('keydown', onDocKey);
+      if (dlg.open) dlg.close();
+    };
+  });
+</script>

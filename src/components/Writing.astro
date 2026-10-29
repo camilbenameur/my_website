@@ -1,0 +1,50 @@
+---
+// `ls -t blog/`: the posts, newest first, in the reader's language. Correction notes mirror the blog's
+// (scripts/check-release-gate.mjs checks them on the live blog).
+import { sections, site } from '../data/site';
+import { posts, postUrl } from '../data/writing';
+import { anchor, tr, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const id = anchor({ id: 'ecrits', en: 'writing' }, lang);
+const s = sections.writing;
+---
+<section class="section wrap" id={id} aria-labelledby={`${id}-title`}>
+  <SectionHead id={id} lang={lang} command={tr(s.command, lang)} title={tr(s.title, lang)} intro={tr(s.intro, lang)} />
+  <ul class="posts">
+    {posts.map((p) => (
+      <li data-print="post">
+        <a class="post" href={postUrl(p.slug, lang)}>
+          <span class="post__rule" aria-hidden="true"></span>
+          <span class="post__date mono"><time datetime={p.date.iso}>{tr(p.date.label, lang)}</time></span>
+          <span class="post__main">
+            <span class="post__title">{tr(p.title, lang)}</span>
+            <span class="post__line">{tr(p.line, lang)}</span>
+          </span>
+          {p.corrected && <span class="post__fix mono">{tr(s.corrected, lang)} <time datetime={p.corrected.iso}>{tr(p.corrected.label, lang)}</time></span>}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p class="posts__all"><a class="link tap go" href={tr(site.links.blog, lang)}>{tr(s.all, lang)}</a></p>
+</section>
+
+<style>
+  .posts { list-style: none; padding: 0; margin-top: clamp(2rem, 4vw, 3.5rem); border-top: 1px solid var(--border); }
+  .post { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) 12rem; gap: 8px var(--gutter); align-items: baseline; position: relative; padding: 24px 0; text-decoration: none; color: var(--fg); }
+  .post__rule { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--border); pointer-events: none; }
+  .post__date { font-size: var(--t-xs); color: var(--muted); }
+  .post__main { display: grid; gap: 6px; }
+  .post__title { font-size: var(--t-m); font-weight: 620; letter-spacing: -0.02em; line-height: 1.25; text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 2px; text-underline-offset: 0.2em; transition: text-decoration-color var(--d-ui) var(--e-out), color var(--d-ui) var(--e-out); }
+  .post__line { color: var(--muted); max-width: 44rem; }
+  .post__fix { justify-self: end; font-size: var(--t-xs); color: var(--magenta); text-align: right; }
+  .post:hover .post__title, .post:focus-visible .post__title { color: var(--blue); text-decoration-color: var(--blue); }
+  .post__date { transition: transform var(--d-ui) var(--e-out); }
+  .post:hover .post__date { transform: translateX(6px); }
+  .posts__all { margin-top: 24px; }
+  @media (max-width: 767px) {
+    .post { grid-template-columns: 1fr; }
+    .post__fix { justify-self: start; text-align: left; }
+  }
+</style>
