@@ -4,6 +4,8 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
+/* a component's display rule must not show what a script keeps hidden (the stream's pause and replay) */
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 88px; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }

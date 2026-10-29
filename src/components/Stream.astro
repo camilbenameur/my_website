@@ -1,19 +1,21 @@
 ---
-// The hero's terminal: the profile as JSON, streamed in chunks like an LLM answer, cut before the end,
-// then repaired (open string and brackets closed: the principle of go-llm-stream's healer).
+// The hero's terminal: the profile as JSON, streamed in chunks like an LLM answer. Its last lines are
+// "slots": each one stops mid-word and is repaired (open string and brackets closed, in the spirit of
+// go-llm-stream's healer), then keeps streaming other true values at rest, several lines at once.
 // The HTML already holds the final, repaired state: that is what crawlers, no-JS visitors and
 // reduced-motion visitors see. motion/stream.ts replays it chunk by chunk.
 // The timings printed next to each field and in the footer are the replay's own (STEP per chunk),
 // so they are true by construction.
 import { stream, ui } from '../data/site';
 import { tr, type Lang } from '../i18n';
+import { inline, lex, lineClosers } from '../lib/json-heal';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const d = stream[lang] as Record<string, unknown>;
 
 type Kind = 'p' | 'k' | 's' | 'n' | 'cut' | 'heal';
 type Tok = { k: Kind; t: string };
-type Line = { toks: Tok[]; mark?: string; lead?: boolean };
+type Line = { toks: Tok[]; mark?: string; lead?: boolean; slot?: number };
 
 const q = (s: string) => `"${s}"`;
 const p = (t: string): Tok => ({ k: 'p', t });
@@ -22,10 +24,9 @@ const val = (v: unknown): Tok => (typeof v === 'number' ? { k: 'n', t: String(v)
 const list = (xs: unknown[]): Tok[] => [p('['), ...xs.flatMap((x, i) => (i ? [p(', '), val(x)] : [val(x)])), p(']')];
 
 const keys = Object.keys(d);
-const lines: Line[] = [{ toks: [p('{')] }];
-for (const [i, k] of keys.entries()) {
+const lines: Line[] = [{ toks: [{ k: 'p', t: '{' }] }];
+for (const k of keys) {
   const v = d[k];
-  const last = i === keys.length - 1;
   if (k === 'experience' && Array.isArray(v)) {
     lines.push({ toks: [p('  '), ...key(k), p('[')] });
     const [a, b] = v as Record<string, unknown>[];
@@ -38,14 +39,45 @@ for (const [i, k] of keys.entries()) {
     lines.push({ toks: [p('  ],')], mark: 'experience' });
     continue;
   }
-  if (last && Array.isArray(v)) {
-    // the cut: the second item stops at stream.cutAt, then the healer closes the string and brackets
-    const cut = tr(stream.cutAt, lang);
-    lines.push({ toks: [p('  '), ...key(k), p('['), val(v[0]), p(', '), { k: 'cut', t: `"${cut}` }, { k: 'heal', t: '"]}' }] });
-    continue;
-  }
   lines.push({ toks: [p('  '), ...key(k), ...(Array.isArray(v) ? list(v) : [val(v)]), p(',')], mark: k });
 }
+
+// The slots. Each one is a line `"key": value`; its first value is in the HTML, stopped at `stop` (in
+// the middle of its last word, or right after it for the second slot) and healed. The last slot also closes the
+// root object. motion/stream.ts replays the others from `texts`. Widths, in characters of one window
+// line: 52 fit at 1024 px (the narrowest two-column layout), 41 on a 375 px phone.
+const WIDE = 52;
+const NARROW = 41;
+const slotDefs = stream.slots[lang].map(({ key: k, values }, i, all) => {
+  const texts = values.map((v) => `${JSON.stringify(k)}: ${inline(v)}`);
+  const from = JSON.stringify(k).length + 2;
+  const strings = lex(texts[0]).filter((t) => t.k === 's');
+  const w = strings[strings.length - 1];
+  const whole = i === 1;
+  const stop = whole ? w.at + w.t.length : w.at + 1 + Math.max(2, Math.round((w.t.length - 2) * 0.6));
+  // a line is the indent, the text and its comma (or the root's brace): one line of the window
+  const size = (x: string) => x.length + 3;
+  const narrow = texts.flatMap((x, j) => (size(x) <= NARROW ? [j] : []));
+  const long = texts.find((x) => size(x) > WIDE);
+  if (long) throw new Error(`stream.slots: "${long}" is longer than ${WIDE} characters and would wrap at 1024 px`);
+  if (narrow[0] !== 0 || narrow.length < 2) throw new Error(`stream.slots.${k}: the first value and one other must fit ${NARROW} characters (phones)`);
+  return { texts, from, stop, narrow, root: i === all.length - 1, comma: i < all.length - 1 };
+});
+for (const [i, sd] of slotDefs.entries()) {
+  const toks: Tok[] = [p('  '), ...lex(sd.texts[0].slice(0, sd.stop)).map((t): Tok => ({ k: t.open ? 'cut' : t.k, t: t.t }))];
+  toks.push({ k: 'heal', t: lineClosers(sd.texts[0].slice(0, sd.stop), sd.root) });
+  if (sd.comma) toks.push({ k: 'heal', t: ',' });
+  lines.push({ toks, slot: i });
+}
+// Each slot reserves the room of its longest value, so a longer one never pushes the page (CLS). A cut
+// and healed line is never longer than the whole one: the healer adds back the quote and brackets the
+// cut removed, the missing letters never come back.
+// On phones the slot only uses its short values, so it reserves the longest of those.
+const sizer = (sd: (typeof slotDefs)[number], only?: number[]) => {
+  const pool = only ? only.map((j) => sd.texts[j]) : sd.texts;
+  return `  ${pool.reduce((a, b) => (b.length > a.length ? b : a))}${sd.comma ? ',' : '}'}`.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+};
+const slotsData = slotDefs.map(({ texts, from, stop, narrow, root, comma }) => ({ texts, from, stop, narrow, root, comma }));
 
 // Chunking: 2 to 6 characters, deterministic, like tokens of a model's output.
 const STEP = 0.0055; // seconds per chunk in the replay (motion/stream.ts reads data-step)
@@ -54,13 +86,13 @@ const sizes = [3, 5, 2, 4, 6, 3, 4, 2, 5];
 const html = lines.map((line) => {
   let out = '';
   for (const tok of line.toks) {
-    if (tok.k === 'heal') { out += `<span class="tk heal" data-heal>${tok.t}</span>`; continue; }
+    if (tok.k === 'heal') { out += `<span class="tk ${tok.t === ',' ? 'p' : 'heal'}" data-heal>${tok.t}</span>`; continue; }
     let rest = tok.t;
     while (rest.length) {
       const size = sizes[n % sizes.length];
       const part = rest.slice(0, size);
       rest = rest.slice(size);
-      out += `<span class="c tk ${tok.k}" data-i="${n++}">${part.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`;
+      out += `<span class="c tk ${tok.k}" data-i="${n++}"${line === lines[0] ? ' data-root' : ''}>${part.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`;
     }
   }
   let ok = '';
@@ -69,13 +101,17 @@ const html = lines.map((line) => {
     const s = ((at + 1) * STEP + 0.05).toFixed(2).replace('.', lang === 'fr' ? ',' : '.');
     ok = `<span class="ok" data-at="${at}"${line.mark === 'experience' ? ' data-mark-lead' : ''}><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2 6.4 4.8 9 10 3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>${s} s</span></span>`;
   }
+  if (line.slot !== undefined) {
+    const sd = slotDefs[line.slot];
+    return `<span class="ln"><span class="ln__c"><span class="slot" data-slot="${line.slot}"><span class="slot__size">${sizer(sd)}</span><span class="slot__size slot__size--narrow">${sizer(sd, sd.narrow)}</span><span class="slot__live">${out}</span></span></span></span>`;
+  }
   return `<span class="ln"><span class="ln__c">${out}</span>${ok}</span>`;
 });
 const total = n;
 const seconds = (total * STEP + 0.05).toFixed(1).replace('.', lang === 'fr' ? ',' : '.');
 const tab = lang === 'fr' ? stream.tab : stream.tabEn;
 ---
-<figure class="stream win" data-stream data-step={STEP} data-total={total} aria-labelledby="stream-cap">
+<figure class="stream win" data-stream data-step={STEP} data-total={total} data-slots={JSON.stringify(slotsData)} aria-labelledby="stream-cap">
   <div class="win__bar">
     <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
     <span class="win__title">{tab}</span>
@@ -108,6 +144,21 @@ const tab = lang === 'fr' ? stream.tab : stream.tabEn;
   .stream__pre :global(.p) { color: var(--muted); }
   .stream__pre :global(.cut) { color: var(--red); background: rgb(255 138 138 / 0.12); border-radius: 2px; }
   .stream__pre :global(.heal) { color: var(--magenta); }
+  /* a slot: the live line over an invisible copy of its longest value, in the same grid cell */
+  .stream__pre :global(.slot) { display: grid; }
+  .stream__pre :global(.slot > *) { grid-area: 1 / 1; min-width: 0; }
+  .stream__pre :global(.slot__size) { visibility: hidden; }
+  .stream__pre :global(.slot__size--narrow) { display: none; }
+  @media (max-width: 599px) {
+    .stream__pre :global(.slot__size) { display: none; }
+    .stream__pre :global(.slot__size--narrow) { display: block; }
+  }
+  .stream__pre :global(.slot__caret) { display: inline-block; width: 0.55em; height: 1.05em; margin-left: 1px; vertical-align: -0.18em; background: var(--green); opacity: 0.85; }
+  /* when a slot is healed, each added character and the bracket it closes light up together */
+  .stream__pre :global(.pair) { border-radius: 2px; animation: pair 1s var(--e-out); }
+  .stream__pre :global(.heal.pair) { display: inline-block; animation: pair 1s var(--e-out), healin 0.28s var(--e-out); }
+  @keyframes pair { from { background-color: rgb(232 160 208 / 0.3); color: var(--fg); } }
+  @keyframes healin { from { opacity: 0; transform: translateY(-0.3em); } }
   .stream__pre :global(.ok) { display: inline-flex; align-items: center; gap: 5px; color: var(--green); }
   .stream__pre :global(.ok span) { color: var(--muted); }
   .stream__heal-note { display: inline-flex; align-items: center; gap: 5px; color: var(--magenta); margin-left: 1ch; vertical-align: -0.15em; }
@@ -121,10 +172,12 @@ const tab = lang === 'fr' ? stream.tab : stream.tabEn;
   .stream__ctl { display: flex; gap: 8px; margin-left: auto; }
   .stream__replay { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: var(--r-chip); background: transparent; color: var(--blue); font-size: 12px; cursor: pointer; transition: background-color var(--d-fast) var(--e-out), color var(--d-fast) var(--e-out); }
   .stream__replay:hover { background: var(--fg); color: var(--bg); }
+  /* hidden until the stream has played, but in place: showing them never moves the page (CLS) */
+  .stream__replay[hidden] { display: inline-flex !important; visibility: hidden; }
   .stream__replay svg { transition: transform 0.3s var(--e-out); }
   .stream__replay:hover svg { transform: rotate(-200deg); }
   /* replay states, set by motion/stream.ts */
-  .stream.is-playing :global(.c:not(.on)), .stream.is-playing :global(.ok:not(.on)), .stream.is-playing :global(.heal:not(.on)), .stream.is-playing .stream__heal-note:not(.on), .stream.is-playing .stream__cursor { visibility: hidden; }
+  .stream.is-playing :global(.c:not(.on)), .stream.is-playing :global(.ok:not(.on)), .stream.is-playing :global([data-heal]:not(.on)), .stream.is-playing .stream__heal-note:not(.on), .stream.is-playing .stream__cursor { visibility: hidden; }
   .stream :global(.ok.on) { animation: tick 0.3s var(--e-out); }
   @keyframes tick { from { opacity: 0; transform: translateX(-4px); } }
   @media (max-width: 1023px) { .stream__pre { white-space: pre-wrap; word-break: break-word; } }

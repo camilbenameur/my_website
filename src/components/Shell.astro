@@ -1,38 +1,29 @@
 ---
-// The mini terminal, opened with « / » or the header button. A modal <dialog>: Escape closes it and
-// the focus stays inside. Every answer is true and short; navigation commands go to real anchors.
+// The terminal, opened with « / » or the header button: camsh (src/terminal/), a small shell that runs
+// in the browser on a read-only file system made of this site's content. A modal <dialog>: Escape
+// closes it and the focus stays inside. The shell itself is loaded on first use, not with the page.
 import { nav, routes, shell, site } from '../data/site';
-import { projects } from '../data/projects';
 import { anchor, tr, type Lang } from '../i18n';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const home = routes.home[lang];
-const sections = Object.fromEntries(nav.map((s) => [lang === 'fr' ? s.id : s.en, `${home}#${anchor(s, lang)}`]));
-const data = {
-  lang,
-  sections,
-  links: { github: site.links.github, linkedin: site.links.linkedin, blog: tr(site.links.blog, lang) },
-  other: lang === 'fr' ? routes.home.en : routes.home.fr,
-  projects: projects.map((p) => ({ name: tr(p.name, lang), href: p.page ? `${routes.project[lang]}${p.slug}/` : undefined })),
-  t: {
-    unknown: tr(shell.unknown, lang), sudo: tr(shell.sudo, lang), cv: tr(shell.cv, lang), whoami: tr(shell.whoami, lang),
-    keysOff: tr(shell.keysOff, lang), keysOn: tr(shell.keysOn, lang), help: shell.help[lang],
-  },
-};
+const contact = nav.find((s) => s.id === 'contact')!;
+const data = { lang, built: new Date().toISOString(), contact: `${home}#${anchor(contact, lang)}`, github: site.links.github, blog: tr(site.links.blog, lang) };
 ---
 <dialog class="shell" id="shell" aria-labelledby="shell-title" data-shell>
   <div class="win shell__win">
     <div class="win__bar">
       <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      <h2 class="win__title" id="shell-title">{tr(shell.title, lang)}</h2>
+      <h2 class="win__title" id="shell-title">{tr(shell.title, lang)} <span class="muted">· camsh</span></h2>
       <button class="shell__close mono" type="button" data-shell-close>{lang === 'fr' ? 'Fermer' : 'Close'} <kbd>Esc</kbd></button>
     </div>
-    <div class="shell__body mono" translate="no">
+    <div class="shell__body mono" translate="no" data-shell-body>
       <div class="shell__log" data-shell-log role="log" aria-live="polite">
         <p class="muted">{tr(shell.intro, lang)}</p>
+        <p class="shell__try"><span class="muted">{tr(shell.tryLabel, lang)}</span>{tr(shell.try, lang).map((c) => <button class="shell__chip" type="button" data-run={c}>{c}</button>)}</p>
       </div>
       <form class="shell__line" data-shell-form>
-        <label class="shell__prompt" for="shell-input"><b>camil</b>@<i>lyon</i>:~$<span class="sr-only"> {tr(shell.label, lang)}</span></label>
+        <label class="shell__prompt" for="shell-input"><span data-shell-prompt><b>camil</b>@<i>lyon</i>:~$</span><span class="sr-only"> {tr(shell.label, lang)}</span></label>
         <input id="shell-input" name="cmd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" data-shell-input />
       </form>
     </div>
@@ -41,48 +32,59 @@ const data = {
 <script type="application/json" id="shell-data" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />
 
 <style>
-  .shell { width: min(720px, calc(100% - 2 * var(--gutter))); max-width: none; max-height: min(560px, 80svh); padding: 0; border: 0; background: transparent; color: var(--fg); overflow: visible; }
+  .shell { width: min(860px, calc(100% - 2 * var(--gutter))); max-width: none; max-height: min(640px, 84svh); padding: 0; border: 0; background: transparent; color: var(--fg); overflow: visible; }
   .shell::backdrop { background: rgb(5 6 8 / 0.7); backdrop-filter: blur(2px); }
   .shell[open] { animation: shell-in 0.24s var(--e-out); }
   @keyframes shell-in { from { opacity: 0; transform: translateY(8px) scale(0.99); } }
-  .shell__win { display: flex; flex-direction: column; max-height: min(560px, 80svh); }
+  .shell__win { display: flex; flex-direction: column; height: min(640px, 84svh); }
   .shell .win__title { font-size: 12.5px; font-weight: 400; letter-spacing: 0; font-family: var(--f-mono); }
   .shell__close { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; min-height: 32px; padding: 4px 8px; border: 1px solid var(--border-strong); border-radius: var(--r-chip); background: transparent; color: var(--fg); font-size: 12px; cursor: pointer; }
   .shell__close:hover { background: var(--fg); color: var(--bg); }
   .shell__close kbd { font-size: 11px; color: var(--muted); }
-  .shell__body { padding: 16px 18px 18px; font-size: 14px; line-height: 1.6; overflow: auto; overscroll-behavior: contain; }
-  .shell__log { display: grid; gap: 4px; }
-  .shell__log :global(.echo b) { color: var(--green); font-weight: 600; }
-  .shell__log :global(.echo i) { color: var(--blue); font-style: normal; }
-  .shell__log :global(.err) { color: var(--red); }
-  .shell__log :global(dl) { display: grid; grid-template-columns: max-content 1fr; gap: 2px 18px; }
-  .shell__log :global(dt) { color: var(--green); }
-  .shell__log :global(dd) { margin: 0; color: var(--text-2); }
-  .shell__log :global(a) { color: var(--blue); }
+  .shell__close:hover kbd { color: inherit; }
+  .shell__body { flex: 1; min-height: 0; padding: 16px 18px 18px; font-size: 13.5px; line-height: 1.55; overflow: auto; overscroll-behavior: contain; cursor: text; }
+  .shell__log { display: grid; gap: 2px; }
+  .shell__log > p { margin-bottom: 6px; }
+  .shell__try { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .shell__chip { min-height: 28px; padding: 2px 8px; border: 1px solid var(--border-strong); border-radius: var(--r-chip); background: transparent; color: var(--blue); font: inherit; font-size: 12.5px; cursor: pointer; transition: background-color var(--d-fast) var(--e-out), color var(--d-fast) var(--e-out); }
+  .shell__chip:hover { background: var(--fg); color: var(--bg); }
+  /* command output, written by the script below */
+  .shell__log :global(.o) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .shell__log :global(.o--echo) { margin-top: 6px; color: var(--fg); }
+  .shell__log :global(.o--err) { color: var(--red); }
+  .shell__log :global(.l:empty::after) { content: '\200b'; }
+  .shell__log :global(.o-run) { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color var(--d-fast) var(--e-out); }
+  .shell__log :global(.o-run:hover) { text-decoration-color: currentColor; }
+  .shell__log :global(.c-dir), .shell__log :global(.c-host), .shell__log :global(.c-key), .shell__log :global(.c-link) { color: var(--blue); }
+  .shell__log :global(.c-dir), .shell__log :global(.c-user), .shell__log :global(.c-h) { font-weight: 600; }
+  .shell__log :global(.c-user), .shell__log :global(.c-exec), .shell__log :global(.c-str), .shell__log :global(.c-ok) { color: var(--green); }
+  .shell__log :global(.c-num), .shell__log :global(.c-tag) { color: var(--yellow); }
+  .shell__log :global(.c-punct), .shell__log :global(.c-muted) { color: var(--muted); }
+  .shell__log :global(.c-h) { color: var(--fg); }
+  .shell__log :global(.c-file), .shell__log :global(.c-heal) { color: var(--magenta); }
+  .shell__log :global(.c-match) { color: var(--red); font-weight: 600; }
+  .shell__log :global(.c-cut) { color: var(--red); background: rgb(255 138 138 / 0.12); border-radius: 2px; }
+  .shell__log :global(.c-caret) { background: var(--green); }
   .shell__line { display: flex; gap: 0.6ch; align-items: baseline; margin-top: 8px; }
   .shell__prompt { flex: none; color: var(--text-2); }
   .shell__prompt b { color: var(--green); font-weight: 600; }
   .shell__prompt i { color: var(--blue); font-style: normal; }
   .shell__line input { flex: 1; min-width: 0; min-height: 28px; border: 0; background: transparent; color: var(--fg); caret-color: var(--green); font: inherit; outline: none; }
   .shell__line:focus-within { box-shadow: 0 2px 0 var(--green); }
-  @media (max-width: 600px) { .shell__log :global(dl) { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .shell__body { font-size: 12.5px; padding: 12px; } }
 </style>
 
 <script>
   import { navigate } from 'astro:transitions/client';
   import { onPage } from '../engine';
   import { goToHash } from '../engine/anchors';
+  import type { Io, Line } from '../terminal/shell';
 
-  type Data = {
-    lang: 'fr' | 'en';
-    sections: Record<string, string>;
-    links: Record<string, string>;
-    other: string;
-    projects: { name: string; href?: string }[];
-    t: { unknown: string; sudo: string; cv: string; whoami: string; keysOff: string; keysOn: string; help: string[][] };
-  };
+  type Data = { lang: 'fr' | 'en'; built: string; contact: string; github: string; blog: string };
+  type Shell = ReturnType<typeof import('../terminal/shell').createShell>;
 
-  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  let mod: Promise<typeof import('../terminal/shell')> | null = null;
+  const load = () => (mod ??= import('../terminal/shell'));
   const keysOn = () => !document.documentElement.classList.contains('keys-off');
 
   function setKeys(on: boolean) {
@@ -91,21 +93,46 @@ const data = {
     document.querySelectorAll<HTMLButtonElement>('[data-keys-toggle]').forEach((b) => b.setAttribute('aria-pressed', String(on)));
   }
 
+  // One output line: plain text, coloured spans, and buttons for the parts that run a command.
+  function renderLine(line: Line): HTMLElement {
+    const el = document.createElement('div');
+    el.className = 'l';
+    for (const s of line) {
+      if (s.run) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `o-run${s.c ? ` c-${s.c}` : ''}`;
+        b.dataset.run = s.run;
+        b.textContent = s.t;
+        el.append(b);
+      } else if (s.c) {
+        const sp = document.createElement('span');
+        sp.className = `c-${s.c}`;
+        sp.textContent = s.t;
+        el.append(sp);
+      } else el.append(s.t);
+    }
+    return el;
+  }
+
   onPage(() => {
     const dlg = document.querySelector<HTMLDialogElement>('[data-shell]');
     const raw = document.getElementById('shell-data')?.textContent;
     if (!dlg || !raw) return;
     const data = JSON.parse(raw) as Data;
+    const body = dlg.querySelector<HTMLElement>('[data-shell-body]')!;
     const log = dlg.querySelector<HTMLElement>('[data-shell-log]')!;
     const form = dlg.querySelector<HTMLFormElement>('[data-shell-form]')!;
     const input = dlg.querySelector<HTMLInputElement>('[data-shell-input]')!;
+    const promptEl = dlg.querySelector<HTMLElement>('[data-shell-prompt]')!;
     const openers = [...document.querySelectorAll<HTMLButtonElement>('[data-shell-open]')];
     const closer = dlg.querySelector<HTMLButtonElement>('[data-shell-close]')!;
-    const past: string[] = []; // commands typed, for the arrow keys (not window.history)
-    let cursor = 0;
     let opener: HTMLElement | null = null;
+    let sh: Shell | null = null;
+    let cursor = -1; // position in the history while browsing it with the arrows; -1: not browsing
+    let draft = '';
 
-    const print = (html: string) => { const p = document.createElement('div'); p.innerHTML = html; log.appendChild(p); p.scrollIntoView({ block: 'nearest' }); };
+    const bottom = () => { body.scrollTop = body.scrollHeight; };
     // Same page: smooth scroll to the anchor. Another page of this site: the router. Elsewhere: leave.
     const go = (href: string) => {
       dlg.close();
@@ -114,43 +141,93 @@ const data = {
       if (url.pathname === location.pathname && url.hash) { history.replaceState(history.state, '', url.hash); return void goToHash(url.hash); }
       navigate(href);
     };
-
-    const run = (line: string) => {
-      const cmd = line.trim().toLowerCase().replace(/\s+/g, ' ');
-      print(`<p class="echo"><b>camil</b>@<i>lyon</i>:~$ ${esc(line)}</p>`);
-      if (!cmd) return;
-      const [head, arg] = cmd.split(' ');
-      if (data.sections[head]) return go(data.sections[head]);
-      switch (head) {
-        case 'help': case 'aide': case 'ls':
-          return print(`<dl>${data.t.help.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`);
-        case 'projets': case 'projects':
-          return print(`<ul>${data.projects.map((p) => `<li>${p.href ? `<a href="${p.href}">${esc(p.name)}</a>` : esc(p.name)}</li>`).join('')}</ul>`);
-        case 'whoami': return print(`<p>${esc(data.t.whoami)}</p>`);
-        case 'cv': case 'resume': return print(`<p>${esc(data.t.cv)}</p>`);
-        case 'github': case 'linkedin': case 'blog': return go(data.links[head]);
-        case 'en': case 'fr': return go(data.other);
-        case 'sudo': return print(`<p class="err">${esc(data.t.sudo)}</p>`);
-        case 'clear': log.replaceChildren(); return;
-        case 'exit': case 'quit': case 'q': return dlg.close();
-        case 'raccourcis': case 'shortcuts':
-          if (arg === 'off' || arg === 'on') { setKeys(arg === 'on'); return print(`<p>${esc(arg === 'on' ? data.t.keysOn : data.t.keysOff)}</p>`); }
-          return print(`<p>${esc(head)} on | off</p>`);
-        default: return print(`<p class="err">${esc(head)}: ${esc(data.t.unknown)}</p>`);
-      }
+    const io: Io = {
+      print: (lines, kind = 'out') => {
+        const box = document.createElement('div');
+        box.className = `o o--${kind}`;
+        box.append(...lines.map(renderLine));
+        log.append(box);
+        bottom();
+      },
+      live: () => {
+        const box = document.createElement('div');
+        box.className = 'o o--out';
+        box.setAttribute('aria-busy', 'true'); // read once, when the stream ends
+        log.append(box);
+        return { set: (lines) => { box.replaceChildren(...lines.map(renderLine)); if (!sh?.busy()) box.removeAttribute('aria-busy'); bottom(); } };
+      },
+      clear: () => log.replaceChildren(),
+      go,
+      close: () => dlg.close(),
+      keys: (on) => { if (on !== undefined) setKeys(on); return keysOn(); },
+    };
+    const ready = async () => (sh ??= (await load()).createShell(data.lang, io, data.built));
+    const showPrompt = () => {
+      if (!sh) return;
+      const [, , , where] = sh.prompt();
+      promptEl.innerHTML = '<b>camil</b>@<i>lyon</i>';
+      promptEl.append(where.t.trimEnd());
+    };
+    const exec = async (line: string) => {
+      const s = await ready();
+      if (s.busy()) return;
+      cursor = -1;
+      await s.run(line);
+      showPrompt();
+      if (dlg.open) input.focus({ preventScroll: true });
     };
 
-    const open = (from?: HTMLElement | null) => { if (dlg.open) return; opener = from ?? (document.activeElement as HTMLElement); dlg.showModal(); input.focus(); };
-    const onSubmit = (e: SubmitEvent) => { e.preventDefault(); const v = input.value; if (v.trim()) { past.push(v); cursor = past.length; } input.value = ''; run(v); };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowUp' && past.length) { e.preventDefault(); cursor = Math.max(0, cursor - 1); input.value = past[cursor]; }
-      if (e.key === 'ArrowDown' && past.length) { e.preventDefault(); cursor = Math.min(past.length, cursor + 1); input.value = past[cursor] ?? ''; }
+    const open = (from?: HTMLElement | null) => {
+      if (dlg.open) return;
+      opener = from ?? (document.activeElement as HTMLElement);
+      dlg.showModal();
+      input.focus();
+      void ready().then(showPrompt);
+    };
+    const onSubmit = (e: SubmitEvent) => { e.preventDefault(); if (sh?.busy()) return; const v = input.value; input.value = ''; void exec(v); };
+    const onKey = async (e: KeyboardEvent) => {
+      const past = sh?.history() ?? [];
+      if (e.key === 'ArrowUp' && past.length) {
+        e.preventDefault();
+        if (cursor < 0) { draft = input.value; cursor = past.length; }
+        cursor = Math.max(0, cursor - 1);
+        input.value = past[cursor];
+      } else if (e.key === 'ArrowDown' && cursor >= 0) {
+        e.preventDefault();
+        cursor++;
+        if (cursor >= past.length) { cursor = -1; input.value = draft; } else input.value = past[cursor];
+      } else if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && input.value.trim()) {
+        // Tab completes while something is typed; on an empty line it moves the focus as usual
+        e.preventDefault();
+        const r = (await ready()).complete(input.value);
+        input.value = r.line;
+        if (r.options) io.print([r.options.flatMap((o, i) => [{ t: i ? '  ' : '' }, { t: o, c: o.endsWith('/') ? 'dir' : undefined }])]);
+      } else if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        io.clear();
+      } else if (e.ctrlKey && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+        input.value = '';
+      } else if (e.ctrlKey && e.key.toLowerCase() === 'c' && input.selectionStart === input.selectionEnd && !window.getSelection()?.toString()) {
+        // Ctrl+C cuts a running stream, or drops the line; with text selected it still copies
+        e.preventDefault();
+        if (sh?.interrupt()) return;
+        io.print([[...(sh?.prompt() ?? []), { t: `${input.value}^C` }]], 'echo');
+        input.value = '';
+        cursor = -1;
+      }
+    };
+    const onLogClick = (e: MouseEvent) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-run]');
+      if (b) { void exec(b.dataset.run!); return; }
+      if (!window.getSelection()?.toString() && !(e.target as HTMLElement).closest('a, button, input')) input.focus({ preventScroll: true });
     };
     const onClose = () => {
       const at = document.activeElement;
       if (!at || at === document.body || dlg.contains(at)) opener?.focus?.({ preventScroll: true });
     };
     const onOpenClick = (e: Event) => open(e.currentTarget as HTMLElement);
+    const warm = () => void load();
 
     // Character-key shortcuts: never in a field, never with a modifier or on repeat, and they can be
     // turned off (footer button or `raccourcis off`), as WCAG 2.1.4 asks.
@@ -159,29 +236,32 @@ const data = {
       const t = e.target as HTMLElement;
       if (t.closest('input, textarea, select, [contenteditable], dialog')) return;
       if (e.key === '/') { e.preventDefault(); open(); }
-      else if (e.key === 'g') location.assign(data.links.github);
-      else if (e.key === 'b') location.assign(data.links.blog);
-      else if (e.key === 'c') go(data.sections.contact);
+      else if (e.key === 'g') location.assign(data.github);
+      else if (e.key === 'b') location.assign(data.blog);
+      else if (e.key === 'c') go(data.contact);
     };
 
     const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-keys-toggle]')];
     const onToggle = () => setKeys(!keysOn());
     setKeys(keysOn());
 
-    openers.forEach((b) => b.addEventListener('click', onOpenClick));
+    openers.forEach((b) => { b.addEventListener('click', onOpenClick); b.addEventListener('pointerenter', warm); b.addEventListener('focus', warm); });
     toggles.forEach((b) => b.addEventListener('click', onToggle));
     closer.addEventListener('click', () => dlg.close());
     form.addEventListener('submit', onSubmit);
     input.addEventListener('keydown', onKey);
+    body.addEventListener('click', onLogClick);
     dlg.addEventListener('close', onClose);
     document.addEventListener('keydown', onDocKey);
     return () => {
-      openers.forEach((b) => b.removeEventListener('click', onOpenClick));
+      openers.forEach((b) => { b.removeEventListener('click', onOpenClick); b.removeEventListener('pointerenter', warm); b.removeEventListener('focus', warm); });
       toggles.forEach((b) => b.removeEventListener('click', onToggle));
       form.removeEventListener('submit', onSubmit);
       input.removeEventListener('keydown', onKey);
+      body.removeEventListener('click', onLogClick);
       dlg.removeEventListener('close', onClose);
       document.removeEventListener('keydown', onDocKey);
+      sh?.interrupt();
       if (dlg.open) dlg.close();
     };
   });
