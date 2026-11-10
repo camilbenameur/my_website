@@ -1,8 +1,8 @@
 // Everything the site says outside the projects, the background and the skills. Components own how
 // it looks; this file owns what it is. Every text has a French and an English version.
 //
-// Facts come from cv_latex (CLAUDE.md rules 1 and 2, CV-GUIDELINES.md §0 and §2, profil/) and, for the
-// AI engineer / Forward Deployed Engineer direction, from fde-freelance/00-LIRE-EN-PREMIER.md.
+// Facts come from cv_latex (the CV rules, CV-GUIDELINES.md §0 and §2, profil/). Positioning since 10/11/2026:
+// Go/Python software engineer on LLM-based products (carriere-audit-2026-11-10/00-RAPPORT.md).
 // English wording follows cv_latex/templates/cv-en.tex. Rules for visible copy (scripts/check-content.mjs
 // enforces the mechanical ones):
 //   - no seniority words (expert, senior, confirmé, lead as a title, plusieurs années, experienced…);
@@ -18,12 +18,12 @@ export type T = { fr: string; en: string };
 export const site = {
   name: 'Camil Benameur',
   origin: 'https://camilbenameur.com',
-  title: { fr: 'Camil Benameur, ingénieur IA à Lyon', en: 'Camil Benameur, AI engineer in Lyon' },
+  title: { fr: 'Camil Benameur, ingénieur logiciel Go/Python à Lyon', en: 'Camil Benameur, Go/Python software engineer in Lyon' },
   description: {
-    fr: 'Ingénieur IA à Lyon, diplômé en 2025. J’ai conçu et livré en production un installateur de logiciels industriels chez Schneider Electric.',
-    en: 'AI engineer in Lyon, France, graduated in 2025. I designed an installer for industrial software at Schneider Electric and shipped it to production.',
+    fr: 'Ingénieur logiciel à Lyon (Go, Python), diplômé en 2025. Je construis des logiciels qui utilisent l’IA, et je teste qu’ils tiennent.',
+    en: 'Software engineer in Lyon, France (Go, Python), graduated in 2025. I build software that uses AI, and I test that it holds up.',
   },
-  jobTitle: { fr: 'Ingénieur IA', en: 'AI engineer' },
+  jobTitle: { fr: 'Ingénieur logiciel', en: 'Software engineer' },
   links: {
     linkedin: 'https://www.linkedin.com/in/camil-benameur-14a762194/',
     github: 'https://github.com/camilbenameur',
@@ -82,10 +82,10 @@ export const nav = [
 
 export const hero = {
   command: 'whoami',
-  title: { fr: ['Camil Benameur,', 'ingénieur IA.'], en: ['Camil Benameur,', 'AI engineer.'] },
+  title: { fr: ['Camil Benameur,', 'ingénieur logiciel.'], en: ['Camil Benameur,', 'software engineer.'] },
   lead: {
-    fr: 'Chez Schneider Electric, en stage puis en CDD (12 mois), j’ai conçu et livré en production un installateur de logiciels industriels, et j’y ai développé des outils d’IA internes. Je cherche un poste d’ingénieur IA ou de Forward Deployed Engineer, pour créer des outils d’IA avec les équipes qui s’en servent.',
-    en: 'At Schneider Electric, on an internship then a fixed-term contract (12 months), I designed an installer for industrial software and shipped it to production, and I built internal AI tools there. I am looking for an AI engineer or Forward Deployed Engineer role, building AI tools with the teams who use them.',
+    fr: 'Chez Schneider Electric, en stage puis en CDD (12 mois), j’ai conçu et livré en production un installateur de logiciels industriels, et j’y ai développé des outils d’IA internes. Je construis des logiciels qui utilisent l’IA, et je teste qu’ils tiennent. Je cherche un poste d’ingénieur logiciel (Go, Python) sur des produits à base de LLM, à Lyon ou en télétravail en France.',
+    en: 'At Schneider Electric, on an internship then a fixed-term contract (12 months), I designed an installer for industrial software and shipped it to production, and I built internal AI tools there. I build software that uses AI, and I test that it holds up. I am looking for a Go/Python software engineer role on LLM-based products, in Lyon or remote in France.',
   },
   // The phrase of the lead that the stream underlines when its field completes.
   mark: { fr: 'livré en production', en: 'shipped it to production' },
@@ -105,9 +105,9 @@ export const stream = {
   // The head of the JSON, streamed once, in order.
   fr: {
     nom: 'Camil Benameur',
-    role: 'ingénieur IA',
+    role: 'ingénieur logiciel',
     ville: 'Lyon',
-    cherche: ['ingénieur IA', 'Forward Deployed Engineer'],
+    cherche: ['ingénieur logiciel Go/Python', 'produits à base de LLM'],
     experience: [
       { chez: 'Schneider Electric', mois: 12, produit: 'SoftDPAC Remote Installer', statut: 'livré en production' },
       { chez: 'Call To Action', de: '2026-08', a: '2026-10' },
@@ -115,9 +115,9 @@ export const stream = {
   },
   en: {
     name: 'Camil Benameur',
-    role: 'AI engineer',
+    role: 'software engineer',
     city: 'Lyon',
-    looking_for: ['AI engineer', 'Forward Deployed Engineer'],
+    looking_for: ['Go/Python software engineer', 'LLM-based products'],
     experience: [
       { at: 'Schneider Electric', months: 12, product: 'SoftDPAC Remote Installer', status: 'shipped to production' },
       { at: 'Call To Action', from: '2026-08', to: '2026-10' },
@@ -445,7 +445,7 @@ export const shell = {
   keysOff: { fr: 'Raccourcis clavier désactivés.', en: 'Keyboard shortcuts turned off.' },
   keysOn: { fr: 'Raccourcis clavier activés.', en: 'Keyboard shortcuts turned on.' },
   whoami: {
-    fr: 'Camil Benameur, ingénieur IA à Lyon, diplômé en 2025. Disponible immédiatement.',
-    en: 'Camil Benameur, AI engineer in Lyon, France, graduated in 2025. Available now.',
+    fr: 'Camil Benameur, ingénieur logiciel à Lyon (Go, Python), diplômé en 2025. Disponible immédiatement.',
+    en: 'Camil Benameur, software engineer in Lyon, France (Go, Python), graduated in 2025. Available now.',
   },
 };

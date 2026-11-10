@@ -26,11 +26,11 @@ export const commits: Commit[] = [
     hash: 'c7a1f04',
     when: { fr: 'août à oct. 2026', en: 'Aug. to Oct. 2026' },
     iso: '2026-08',
-    role: { fr: 'Data & AI Engineer, CDI', en: 'Data & AI Engineer, permanent role' },
+    role: { fr: 'AI & Software Engineer, CDI', en: 'AI & Software Engineer, permanent role' },
     org: { fr: 'Call To Action (Bonum Group), Nice', en: 'Call To Action (Bonum Group), Nice' },
     text: {
-      fr: 'Outils internes, données et déploiement automatisé. CDI terminé le 16 octobre 2026.',
-      en: 'Internal tools, data and automated deployment. The role ended on 16 October 2026.',
+      fr: 'Outils internes, données et déploiement automatisé, de mi-août au 16 octobre 2026.',
+      en: 'Internal tools, data and automated deployment, from mid-August to 16 October 2026.',
     },
   },
   {

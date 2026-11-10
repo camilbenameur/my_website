@@ -4,10 +4,13 @@
 //   public/favicon.ico                32×32 PNG inside an ICO container
 // Needs Playwright resolvable from the current directory and a Chromium (awwwards' browser.mjs finds one).
 //   node scripts/og/render.mjs
-import { launch } from 'file:///C:/Users/benam/.claude/skills/awwwards/scripts/browser.mjs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
+import os from 'node:os';
+// awwwards' browser.mjs (finds a Chromium); override with AWWWARDS_BROWSER on another machine.
+const browserMjs = process.env.AWWWARDS_BROWSER ?? path.join(os.homedir(), '.claude/skills/awwwards/scripts/browser.mjs');
+const { launch } = await import(pathToFileURL(browserMjs).href);
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pub = path.resolve(here, '../../public');
@@ -20,10 +23,10 @@ try {
       await page.evaluate(() => {
         document.documentElement.lang = 'en';
         document.querySelector('[data-title]').firstChild.textContent = 'Camil Benameur,';
-        document.querySelector('[data-role]').textContent = 'AI engineer.';
+        document.querySelector('[data-role]').textContent = 'software engineer.';
         document.querySelector('[data-file]').textContent = 'profile.json';
         document.querySelector('[data-meta]').textContent = 'Lyon, France · graduated in 2025';
-        document.querySelector('[data-json]').innerHTML = '{\n  <span class="k">"role"</span>: <span class="s">"AI engineer"</span>,\n  <span class="k">"city"</span>: <span class="s">"Lyon"</span>,\n  <span class="k">"ai"</span>: [<span class="s">"MCP"</span>, <span class="s">"RAG"</span>],\n  <span class="k">"next"</span>: [<span class="c">"LangGraph ag</span><span class="h">"]}</span>';
+        document.querySelector('[data-json]').innerHTML = '{\n  <span class="k">"role"</span>: <span class="s">"software engineer"</span>,\n  <span class="k">"city"</span>: <span class="s">"Lyon"</span>,\n  <span class="k">"ai"</span>: [<span class="s">"MCP"</span>, <span class="s">"RAG"</span>],\n  <span class="k">"next"</span>: [<span class="c">"LangGraph ag</span><span class="h">"]}</span>';
       });
     }
     await page.evaluate(() => document.fonts.ready);

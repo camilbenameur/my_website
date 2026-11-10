@@ -156,8 +156,8 @@ export const projects: Project[] = [
     },
     page: {
       lead: {
-        fr: 'J’ai été Data & AI Engineer en CDI chez Call To Action (Bonum Group), à Nice, de mi-août au 16 octobre 2026, sur des outils internes, des données et le déploiement de ces outils.',
-        en: 'I was a Data & AI Engineer on a permanent contract at Call To Action (Bonum Group), in Nice, from mid-August to 16 October 2026, working on internal tools, data and the deployment of those tools.',
+        fr: 'J’ai été AI & Software Engineer en CDI chez Call To Action (Bonum Group), à Nice, de mi-août au 16 octobre 2026, sur des outils internes, des données et le déploiement de ces outils.',
+        en: 'I was an AI & Software Engineer on a permanent contract at Call To Action (Bonum Group), in Nice, from mid-August to 16 October 2026, working on internal tools, data and the deployment of those tools.',
       },
       blocks: [
         {
@@ -262,6 +262,28 @@ export const projects: Project[] = [
         { label: { fr: 'Le scanner reprenable et le Healer (article)', en: 'The resumable scanner and the healer (post)' }, href: 'https://blog.camilbenameur.com/{lang}blog/on-streaming-optimization/' },
       ],
     },
+  },
+  {
+    slug: 'gatehaul',
+    name: { fr: 'gatehaul', en: 'gatehaul' },
+    status: 'public',
+    where: { fr: 'GitHub · licence Apache-2.0 · en développement', en: 'GitHub · Apache-2.0 licence · in development' },
+    line: {
+      fr: 'Outil en Go qui lance les builds et les tests d’un agent de code dans vos propres Codespaces GitHub, en tâches qui survivent à la session, et vérifie chaque correctif avant de l’appliquer.',
+      en: 'A Go tool that runs a coding agent’s builds and tests in your own GitHub Codespaces, as jobs that survive the session, and checks each patch before it touches your files.',
+    },
+    href: 'https://github.com/camilbenameur/gatehaul',
+  },
+  {
+    slug: 'saucedemo-e2e',
+    name: { fr: 'saucedemo-e2e', en: 'saucedemo-e2e' },
+    status: 'public',
+    where: { fr: 'GitHub · nov. 2026', en: 'GitHub · Nov. 2026' },
+    line: {
+      fr: 'Tests de bout en bout d’une boutique de démonstration, en TypeScript avec Playwright, lancés par GitHub Actions.',
+      en: 'End-to-end tests of a demo shop, in TypeScript with Playwright, run by GitHub Actions.',
+    },
+    href: 'https://github.com/camilbenameur/saucedemo-e2e',
   },
   {
     slug: 'chaine-de-donnees-publiques',
