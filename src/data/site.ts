@@ -107,7 +107,7 @@ export const stream = {
     nom: 'Camil Benameur',
     role: 'ingénieur logiciel',
     ville: 'Lyon',
-    cherche: ['ingénieur logiciel Go/Python', 'produits à base de LLM'],
+    cherche: ['ingénieur logiciel', 'produits LLM'],
     experience: [
       { chez: 'Schneider Electric', mois: 12, produit: 'SoftDPAC Remote Installer', statut: 'livré en production' },
       { chez: 'Call To Action', de: '2026-08', a: '2026-10' },
@@ -117,7 +117,7 @@ export const stream = {
     name: 'Camil Benameur',
     role: 'software engineer',
     city: 'Lyon',
-    looking_for: ['Go/Python software engineer', 'LLM-based products'],
+    looking_for: ['software engineer', 'LLM products'],
     experience: [
       { at: 'Schneider Electric', months: 12, product: 'SoftDPAC Remote Installer', status: 'shipped to production' },
       { at: 'Call To Action', from: '2026-08', to: '2026-10' },
@@ -205,10 +205,6 @@ export const sections = {
     intro: {
       fr: 'Un poste, une question ou une remarque sur un projet : écrivez-moi, je réponds par écrit.',
       en: 'A role, a question or a comment on a project: write to me, I answer in writing.',
-    },
-    freelance: {
-      fr: 'Je prépare aussi une activité d’ingénieur IA indépendant. Elle n’existe pas encore.',
-      en: 'I am also preparing a freelance AI engineering activity. It does not exist yet.',
     },
   },
 };
