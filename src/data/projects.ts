@@ -10,7 +10,7 @@
 //
 // Sources: cv_latex CV-GUIDELINES.md §2 (postes 1 à 3) and templates/cv-en.tex; go-llm-stream README;
 // fde-site src/data/site.ts (`proofs`, synced); fde-freelance specs (planned projects).
-// Never: lightning (abandoned), knowledge_map (former employer's property), Claude Code by name,
+// Never: lightning (abandoned), knowledge_map (former employer's property), coding-assistant brands by name,
 // "en production" for anything but the SoftDPAC Remote Installer.
 
 export type Status = 'pro' | 'public' | 'prive' | 'prevu';

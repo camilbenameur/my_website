@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
 // awwwards' browser.mjs (finds a Chromium); override with AWWWARDS_BROWSER on another machine.
-const browserMjs = process.env.AWWWARDS_BROWSER ?? path.join(os.homedir(), '.claude/skills/awwwards/scripts/browser.mjs');
+const browserMjs = process.env.AWWWARDS_BROWSER ?? path.join(os.homedir(), '.local/share/awwwards/scripts/browser.mjs');
 const { launch } = await import(pathToFileURL(browserMjs).href);
 
 const here = path.dirname(fileURLToPath(import.meta.url));

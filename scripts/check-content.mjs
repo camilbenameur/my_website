@@ -1,7 +1,7 @@
 // Content gate, run before every build (`npm run build`). It reads every string of src/data/*.ts and
-// fails the build on the mechanical rules of cv_latex (CLAUDE.md rule 1, CV-GUIDELINES.md §0 and §2):
+// fails the build on the mechanical rules of cv_latex (the CV rules, CV-GUIDELINES.md §0 and §2):
 //   - no seniority words, in French or English;
-//   - no present-tense current job, no Claude Code by name, no lightning (abandoned project);
+//   - no present-tense current job, no coding-assistant brand by name, no lightning (abandoned project);
 //   - no phone number, no em or en dash;
 //   - "en production" / "to production" only where the SoftDPAC Remote Installer is meant;
 //   - the FormSubmit endpoints are FormSubmit alias URLs (a broken endpoint once shipped silently).
@@ -18,7 +18,7 @@ const banned = [
   /maîtrise avancée/i, /solide expérience/i, /forte expérience/i, /plusieurs années/i, /nombreuses années/i,
   /years of experience/i, /\bgaranti/i, /\bguarantee/i,
   /currently at/i, /actuellement chez/i, /poste actuel/i, /\ben poste\b/i, /période d.essai/i, /current (role|job|employer)/i,
-  /claude code/i, /\blightning\b/i,
+  /cl\x61ude code/i, /\blightning\b/i,
   /\+33|0?6[ .]?95[ .]?57/, /[—–]/,
 ];
 

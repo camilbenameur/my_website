@@ -11,7 +11,7 @@ Portfolio de Camil Benameur, ingénieur IA, orientation Forward Deployed Enginee
 - **Rôle du site.** Faire comprendre en cinq secondes qui il est, ce qu'il a livré et ce qu'il cherche, puis faire écrire.
 - **Ce que le site n'est pas.** Un site de vente : pas d'offre, pas de prix. L'activité indépendante tient en une phrase : « en préparation, pas encore créée ».
 - **Sources de vérité.**
-  - `cv_latex` (`CLAUDE.md` règles 1 et 2, `CV-GUIDELINES.md` §0 et §2, `profil/`) ;
+  - `cv_latex` (règles du CV, `CV-GUIDELINES.md` §0 et §2, `profil/`) ;
   - le README de go-llm-stream ;
   - le blog ;
   - pour les projets prévus, les specs de `fde-freelance`.
