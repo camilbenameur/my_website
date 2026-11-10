@@ -264,6 +264,17 @@ export const projects: Project[] = [
     },
   },
   {
+    slug: 'guarded-messaging-agent',
+    name: { fr: 'guarded-messaging-agent', en: 'guarded-messaging-agent' },
+    status: 'public',
+    where: { fr: 'GitHub · licence MIT · nov. 2026', en: 'GitHub · MIT licence · Nov. 2026' },
+    line: {
+      fr: 'Serveur MCP qui laisse un LLM lire des conversations, des messages vocaux et des images, et proposer des réponses, sans jamais rien envoyer sans passer une barrière testée par 15 cas d’attaque.',
+      en: 'An MCP server that lets an LLM read chats, voice notes and images and draft replies, but never send anything without passing a gate tested by 15 attack cases.',
+    },
+    href: 'https://github.com/camilbenameur/guarded-messaging-agent',
+  },
+  {
     slug: 'gatehaul',
     name: { fr: 'gatehaul', en: 'gatehaul' },
     status: 'public',
