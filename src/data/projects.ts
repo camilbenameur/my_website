@@ -264,6 +264,17 @@ export const projects: Project[] = [
     },
   },
   {
+    slug: 'sandmeter',
+    name: { fr: 'sandmeter', en: 'sandmeter' },
+    status: 'public',
+    where: { fr: 'GitHub · licence MIT · nov. 2026', en: 'GitHub · MIT licence · Nov. 2026' },
+    line: {
+      fr: 'Bac à sable pour agents de code, écrit à partir des primitives Linux (namespaces, cgroups v2, seccomp, nftables) et comparé à gVisor. Il mesure ses propres évasions : 15 cas rejoués, résultats publiés, y compris les échecs.',
+      en: 'A sandbox for coding agents, written on Linux primitives (namespaces, cgroups v2, seccomp, nftables) and compared with gVisor. It measures its own escapes: 15 replayable cases, results published, failures included.',
+    },
+    href: 'https://github.com/camilbenameur/sandmeter',
+  },
+  {
     slug: 'guarded-messaging-agent',
     name: { fr: 'guarded-messaging-agent', en: 'guarded-messaging-agent' },
     status: 'public',
